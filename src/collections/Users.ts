@@ -2,7 +2,13 @@ import { CollectionConfig } from 'payload';
 
 export const Users: CollectionConfig = {
   slug: 'users',
-  auth: true, // Enable authentication
+  access: {
+    read: () => true,
+    create: () => true,
+    update: () => true,
+    delete: () => true,
+  },
+  auth: true,
   admin: {
     useAsTitle: 'email',
   },
@@ -17,5 +23,28 @@ export const Users: CollectionConfig = {
       type: 'text',
       required: false,
     },
+    {
+      name: 'role',
+      type: 'select',
+      options: ['user', 'admin'],
+      defaultValue: 'user',
+      required: true,
+    },
+    {
+      name: 'walletBalance',
+      type: 'number',
+      defaultValue: 0,
+      min: 0
+    },
+    {
+      name: 'btcWalletAddress',
+      type: 'text'
+    },
+    {
+      name: 'xmrWalletAddress',
+      type: 'text'
+    }
   ],
+  
+  
 };

@@ -122,6 +122,10 @@ export interface UserAuthOperations {
 export interface User {
   id: number;
   username?: string | null;
+  role: 'user' | 'admin';
+  walletBalance?: number | null;
+  btcWalletAddress?: string | null;
+  xmrWalletAddress?: string | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -236,6 +240,10 @@ export interface PayloadMigration {
  */
 export interface UsersSelect<T extends boolean = true> {
   username?: T;
+  role?: T;
+  walletBalance?: T;
+  btcWalletAddress?: T;
+  xmrWalletAddress?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;

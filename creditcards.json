@@ -1,0 +1,32 @@
+[
+  {
+    "cardNumber": "4055 8999 3654 8552",
+    "expiry": "01/28",
+    "cvv": "642",
+    "brand": "visa"
+  },
+  {
+    "cardNumber": "6294 9368 7066 4817",
+    "expiry": "02/28",
+    "cvv": "523",
+    "brand": "unionpay"
+  },
+  {
+    "cardNumber": "4799 6965 0591 4871",
+    "expiry": "10/28",
+    "cvv": "874",
+    "brand": "visa"
+  },
+  {
+    "cardNumber": "6441 0041 0205 2533",
+    "expiry": "02/29",
+    "cvv": "918",
+    "brand": "discover"
+  },
+  {
+    "cardNumber": "3539 2189 3884 2764",
+    "expiry": "06/29",
+    "cvv": "516",
+    "brand": "jcb"
+  }
+]

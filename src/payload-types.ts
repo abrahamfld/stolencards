@@ -69,6 +69,7 @@ export interface Config {
   collections: {
     users: User;
     media: Media;
+    'credit-cards': CreditCard;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -77,6 +78,7 @@ export interface Config {
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    'credit-cards': CreditCardsSelect<false> | CreditCardsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -152,6 +154,23 @@ export interface Media {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "credit-cards".
+ */
+export interface CreditCard {
+  id: number;
+  type: 'VISA' | 'MasterCard' | 'AMEX' | 'Discover';
+  number: string;
+  expiry: string;
+  cvv: number;
+  balance: number;
+  price: number;
+  country: string;
+  ownerName: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
@@ -164,6 +183,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'media';
         value: number | Media;
+      } | null)
+    | ({
+        relationTo: 'credit-cards';
+        value: number | CreditCard;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -240,6 +263,22 @@ export interface MediaSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "credit-cards_select".
+ */
+export interface CreditCardsSelect<T extends boolean = true> {
+  type?: T;
+  number?: T;
+  expiry?: T;
+  cvv?: T;
+  balance?: T;
+  price?: T;
+  country?: T;
+  ownerName?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

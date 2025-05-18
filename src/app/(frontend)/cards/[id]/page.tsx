@@ -2,6 +2,7 @@
 
 import { use, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Topbar } from '../../components/Topbar';
 import { Footer } from '../../components/Footer';
 
@@ -239,7 +240,7 @@ export default function CardCheckoutPage({ params }: { params: Promise<PageParam
                 <div 
                   className={`p-4 rounded-lg border cursor-pointer transition-all ${
                     paymentMethod === 'xmr' ? 'border-red-500 bg-red-900/20' : 'border-gray-700 hover:border-red-500/50'
-                }`}
+                  }`}
                   onClick={() => setPaymentMethod('xmr')}
                 >
                   <div className="flex items-center gap-3">
@@ -257,8 +258,17 @@ export default function CardCheckoutPage({ params }: { params: Promise<PageParam
                   <div className="space-y-4">
                     <div>
                       <span className="block text-gray-400 mb-1">Your wallet balance:</span>
-                      <div className="p-2 bg-gray-900 rounded-md">
+                      <div className={`p-2 rounded-md ${
+                        user.walletBalance >= card.price 
+                          ? 'bg-gray-900' 
+                          : 'bg-red-900/50 border border-red-700'
+                      }`}>
                         ${user.walletBalance.toFixed(2)}
+                        {user.walletBalance < card.price && (
+                          <div className="text-red-300 text-sm mt-1">
+                            You need ${(card.price - user.walletBalance).toFixed(2)} more
+                          </div>
+                        )}
                       </div>
                     </div>
                     <div>
@@ -267,31 +277,76 @@ export default function CardCheckoutPage({ params }: { params: Promise<PageParam
                         ${card.price.toFixed(2)}
                       </div>
                     </div>
-                    {error && (
-                      <div className="text-red-400 text-sm">{error}</div>
-                    )}
-                    {paymentSuccess ? (
-                      <div className="bg-green-900/30 p-4 rounded-lg border border-green-700/50">
-                        <div className="flex items-center gap-2">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
-                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+
+                    {user.walletBalance < card.price ? (
+                      <div className="bg-red-900/20 p-4 rounded-lg border border-red-700/50">
+                        <div className="flex items-start gap-3">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-red-400 mt-0.5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                           </svg>
-                          <span>Payment successful! Your card details will be delivered shortly.</span>
+                          <div>
+                            <h4 className="font-bold text-red-300">Insufficient Funds</h4>
+                            <p className="text-sm text-red-200 mt-1">
+                              You don't have enough balance to complete this purchase.
+                            </p>
+                            <Link
+                              href="/deposit"
+                              className="mt-3 inline-flex items-center gap-2 text-white bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg transition-colors"
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                              Deposit Funds Now
+                            </Link>
+                          </div>
                         </div>
+                      </div>
+                    ) : paymentSuccess ? (
+                      <div className="space-y-4">
+                        <div className="bg-green-900/30 p-4 rounded-lg border border-green-700/50">
+                          <div className="flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                            </svg>
+                            <span>Payment successful! Your card details will be delivered shortly.</span>
+                          </div>
+                        </div>
+                        <Link
+                          href="/my-purchases"
+                          className="w-full py-3 px-4 rounded-lg font-bold bg-blue-600 hover:bg-blue-700 transition-colors text-center block flex items-center justify-center gap-2"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                          </svg>
+                          View Your Purchased Cards
+                        </Link>
                       </div>
                     ) : (
                       <button
                         onClick={handleWalletPayment}
-                        disabled={isProcessing || user.walletBalance < card.price}
+                        disabled={isProcessing}
                         className={`w-full py-3 px-4 rounded-lg font-bold transition-colors ${
                           isProcessing 
-                            ? 'bg-gray-600 cursor-not-allowed'
-                            : user.walletBalance >= card.price
-                              ? 'bg-red-600 hover:bg-red-700'
-                              : 'bg-gray-700 cursor-not-allowed'
-                        }`}
+                            ? 'bg-gray-600 cursor-not-allowed' 
+                            : 'bg-red-600 hover:bg-red-700'
+                        } flex items-center justify-center gap-2`}
                       >
-                        {isProcessing ? 'Processing...' : 'Pay with Wallet'}
+                        {isProcessing ? (
+                          <>
+                            <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Processing...
+                          </>
+                        ) : (
+                          <>
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                            Confirm Payment (${card.price.toFixed(2)})
+                          </>
+                        )}
                       </button>
                     )}
                   </div>

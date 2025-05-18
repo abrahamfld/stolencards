@@ -33,13 +33,9 @@ export const CardGridSection = () => {
       setCards(data.docs);
       setTotalPages(Math.ceil(data.totalDocs / cardsPerPage));
       
-      // Scroll to grid after load
-      if (gridRef.current) {
-        gridRef.current.scrollIntoView({
-          behavior: 'smooth',
-          block: 'start'
-        });
-      }
+ 
+
+
     } catch (error) {
       console.error('Error fetching cards:', error);
     } finally {
@@ -50,6 +46,9 @@ export const CardGridSection = () => {
   useEffect(() => {
     fetchCards(currentPage);
   }, []); // Initial load
+
+
+
 
   const handlePageChange = async (page: number) => {
     if (page === currentPage) return;

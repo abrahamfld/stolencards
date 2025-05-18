@@ -1,7 +1,13 @@
 'use client';
 
+
+
 import { use, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+
+
+import { Topbar } from '../../components/Topbar';
+import { Footer } from '../../components/Footer';
 
 type CreditCard = {
   id: string;
@@ -70,7 +76,10 @@ export default function CardCheckoutPage({ params }: { params: Promise<PageParam
   }
 
   return (
+    <>
+    <Topbar/>
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-gray-100 p-4 md:p-8">
+     
       <div className="max-w-4xl mx-auto">
         <div className="mb-8 border-b border-red-800/50 pb-4">
           <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-amber-600">
@@ -198,5 +207,7 @@ export default function CardCheckoutPage({ params }: { params: Promise<PageParam
         </div>
       </div>
     </div>
+    <Footer/>
+    </>
   );
 }

@@ -1,6 +1,10 @@
 import Head from 'next/head';
 import './styles.css'
 
+
+
+import { Topbar } from './components/Topbar';
+import { Footer } from './components/Footer';
 import { CardGridSection } from './components/sections/CardGridSection';
 import { HeroSection } from './components/sections/HeroSection';
 import { HowItWorksSection } from './components/sections/HowItWorksSection';
@@ -12,6 +16,7 @@ import { HowItWorksSection } from './components/sections/HowItWorksSection';
 export default function Home() {
   return (
     <div className="min-h-screen bg-gray-900 text-white">
+      <Topbar/>
       <Head>
         <title>Elite Cards | Buy CC, Dumps, Fullz </title>
       </Head>
@@ -44,28 +49,7 @@ export default function Home() {
       <CardGridSection  />
 
 
-      {/* Cards for Sale */}
-      <section id="shop" className="p-8">
-        <h2 className="text-3xl font-bold mb-8 text-center">Available Cards</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Fake Card Listing */}
-          {[
-            { type: "VISA Platinum", price: "$200", balance: "$5,000", country: "USA" },
-            { type: "MasterCard Gold", price: "$150", balance: "$3,000", country: "UK" },
-            { type: "AMEX Black", price: "$500", balance: "$15,000", country: "Canada" },
-          ].map((card, index) => (
-            <div key={index} className="bg-gray-800 p-6 rounded-lg border border-gray-700">
-              <h3 className="text-xl font-bold mb-2">{card.type}</h3>
-              <p className="text-yellow-400 mb-1">Balance: {card.balance}</p>
-              <p className="mb-1">Country: {card.country}</p>
-              <p className="font-bold text-lg mb-4">Price: {card.price}</p>
-              <button className="bg-yellow-500 hover:bg-yellow-600 text-black py-2 px-4 rounded w-full">
-                Buy Now
-              </button>
-            </div>
-          ))}
-        </div>
-      </section>
+
 
       {/* Fake Testimonials */}
       <section id="reviews" className="p-8 bg-gray-800">
@@ -103,6 +87,7 @@ export default function Home() {
       <footer className="bg-black p-6 text-center">
         <p>© 2024 EliteCards.cc | Tor Hidden Service: elitecards.onion</p>
       </footer>
+      <Footer/>
     </div>
   );
 }

@@ -1,6 +1,7 @@
-'use client'
+'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 type Transaction = {
   id: string;
@@ -48,22 +49,25 @@ export const Topbar = () => {
   ]);
 
   const unreadCount = transactions.filter(t => !t.read).length;
+  const router = useRouter();
 
   useEffect(() => {
     const fetchWalletBalance = async () => {
       try {
-        const response = await fetch('/api/users/6');
+        const response = await fetch('/api/users/me');
+        if (!response.ok) throw new Error('User not authenticated');
         const data = await response.json();
-        setWalletBalance(data.walletBalance);
+        setWalletBalance(data.user.walletBalance);
       } catch (error) {
-        console.error('Error fetching wallet balance:', error);
+        console.error('User not authenticated. Redirecting to login...');
+        router.push('/login');
       }
     };
 
     const updateTime = () => {
-      setCurrentTime(new Date().toLocaleTimeString([], { 
-        hour: '2-digit', 
-        minute: '2-digit' 
+      setCurrentTime(new Date().toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit'
       }));
     };
 
@@ -82,16 +86,16 @@ export const Topbar = () => {
       clearInterval(timeInterval);
       clearInterval(priceInterval);
     };
-  }, []);
+  }, [router]);
 
   const markAsRead = (id: string) => {
-    setTransactions(transactions.map(t => 
+    setTransactions(transactions.map(t =>
       t.id === id ? { ...t, read: true } : t
     ));
   };
 
   const getTransactionIcon = (type: string) => {
-    switch(type) {
+    switch (type) {
       case 'deposit': return '⬇️';
       case 'withdrawal': return '⬆️';
       case 'purchase': return '💳';
@@ -100,7 +104,7 @@ export const Topbar = () => {
   };
 
   const getStatusColor = (status: string) => {
-    switch(status) {
+    switch (status) {
       case 'completed': return 'text-green-400';
       case 'pending': return 'text-amber-400';
       case 'failed': return 'text-red-400';
@@ -138,14 +142,14 @@ export const Topbar = () => {
           </div>
 
           <div className="relative">
-            <button 
+            <button
               className="text-gray-300 hover:text-amber-400 relative"
               onClick={() => setShowNotifications(!showNotifications)}
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
               </svg>
-              
+
               {unreadCount > 0 && (
                 <span className="absolute -top-1 -right-1 bg-red-500 text-xs rounded-full h-4 w-4 flex items-center justify-center">
                   {unreadCount}
@@ -161,10 +165,10 @@ export const Topbar = () => {
                     ({transactions.length} records)
                   </span>
                 </div>
-                
+
                 <div className="max-h-96 overflow-y-auto">
                   {transactions.map(transaction => (
-                    <div 
+                    <div
                       key={transaction.id}
                       className={`p-3 hover:bg-gray-700/50 cursor-pointer border-b border-gray-700 last:border-0 ${
                         !transaction.read ? 'bg-gray-900/30' : ''
@@ -201,12 +205,21 @@ export const Topbar = () => {
             )}
           </div>
 
-          <span className="inline-flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-amber-400 mr-1" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
-            </svg>
-            BTC: {btcPrice}
-          </span>
+          <button
+  onClick={async () => {
+    try {
+      await fetch('/api/users/logout', { method: 'POST' }); // adjust if your logout logic differs
+    } catch (err) {
+      console.error('Logout failed', err);
+    } finally {
+      router.push('/login');
+    }
+  }}
+  className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-xs font-semibold"
+>
+  Logout
+</button>
+
         </div>
       </div>
     </div>

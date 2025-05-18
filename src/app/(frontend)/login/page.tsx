@@ -48,6 +48,7 @@ export default function LoginPage() {
         throw new Error(data.message || 'Something went wrong');
       }
 
+
       toast.success(isLogin ? 'Login successful!' : 'Account created!');
       router.push('/');
     } catch (error) {

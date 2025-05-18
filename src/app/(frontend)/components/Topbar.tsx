@@ -57,6 +57,7 @@ export const Topbar = () => {
         const response = await fetch('/api/users/me');
         if (!response.ok) throw new Error('User not authenticated');
         const data = await response.json();
+        console.log(data.user);
         setWalletBalance(data.user.walletBalance);
       } catch (error) {
         console.error('User not authenticated. Redirecting to login...');

@@ -1,4 +1,4 @@
-import { CollectionConfig } from 'payload';
+import type { CollectionConfig } from 'payload';
 
 export const Users: CollectionConfig = {
   slug: 'users',
@@ -34,17 +34,16 @@ export const Users: CollectionConfig = {
       name: 'walletBalance',
       type: 'number',
       defaultValue: 0,
-      min: 0
+      min: 0,
     },
     {
       name: 'btcWalletAddress',
-      type: 'text'
+      type: 'text',
     },
     {
       name: 'xmrWalletAddress',
-      type: 'text'
-    }
+      type: 'text',
+    },
+    
   ],
-  
-  
 };

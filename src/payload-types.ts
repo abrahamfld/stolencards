@@ -70,6 +70,7 @@ export interface Config {
     users: User;
     media: Media;
     'credit-cards': CreditCard;
+    'purchased-cards': PurchasedCard;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -79,6 +80,7 @@ export interface Config {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     'credit-cards': CreditCardsSelect<false> | CreditCardsSelect<true>;
+    'purchased-cards': PurchasedCardsSelect<false> | PurchasedCardsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -175,6 +177,27 @@ export interface CreditCard {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "purchased-cards".
+ */
+export interface PurchasedCard {
+  id: number;
+  type: 'VISA' | 'MasterCard' | 'AMEX' | 'Discover';
+  number: string;
+  expiry: string;
+  cvv: number;
+  balance: number;
+  price: number;
+  country: string;
+  ownerName: string;
+  /**
+   * The user who purchased this card (selected by email)
+   */
+  purchasedBy: number | User;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
@@ -191,6 +214,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'credit-cards';
         value: number | CreditCard;
+      } | null)
+    | ({
+        relationTo: 'purchased-cards';
+        value: number | PurchasedCard;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -285,6 +312,23 @@ export interface CreditCardsSelect<T extends boolean = true> {
   price?: T;
   country?: T;
   ownerName?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "purchased-cards_select".
+ */
+export interface PurchasedCardsSelect<T extends boolean = true> {
+  type?: T;
+  number?: T;
+  expiry?: T;
+  cvv?: T;
+  balance?: T;
+  price?: T;
+  country?: T;
+  ownerName?: T;
+  purchasedBy?: T;
   updatedAt?: T;
   createdAt?: T;
 }

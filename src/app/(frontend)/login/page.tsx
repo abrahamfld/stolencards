@@ -1,99 +1,110 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { toast } from 'react-hot-toast';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { toast } from "react-hot-toast";
 
 export default function LoginPage() {
   const router = useRouter();
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    username: '',
+    email: "",
+    password: "",
+    username: "",
   });
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
-    setError(''); // Clear error when user types
+    setError(""); // Clear error when user types
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setError('');
+    setError("");
 
     try {
       if (isLogin) {
         // Handle login
-        const response = await fetch('http://localhost:3000/api/users/login', {
-          method: 'POST',
+        const response = await fetch("http://localhost:3000/api/users/login", {
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
             email: formData.email,
-            password: formData.password
+            password: formData.password,
           }),
-          credentials: 'include',
+          credentials: "include",
         });
 
         const data = await response.json();
 
         if (!response.ok) {
-          throw new Error(data.message || 'Invalid email or password');
+          throw new Error(data.message || "Invalid email or password");
         }
 
-        toast.success('Login successful!');
+        toast.success("Login successful!");
       } else {
         // Handle registration
-        const registerResponse = await fetch('http://localhost:3000/api/users', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(formData),
-          credentials: 'include',
-        });
+        const registerResponse = await fetch(
+          "http://localhost:3000/api/users",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(formData),
+            credentials: "include",
+          }
+        );
 
         const registerData = await registerResponse.json();
 
         if (!registerResponse.ok) {
-          throw new Error(registerData.message || 'Registration failed. Please try again.');
+          throw new Error(
+            registerData.message || "Registration failed. Please try again."
+          );
         }
 
         // Auto-login after successful registration
-        const loginResponse = await fetch('http://localhost:3000/api/users/login', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            email: formData.email,
-            password: formData.password
-          }),
-          credentials: 'include',
-        });
+        const loginResponse = await fetch(
+          "http://localhost:3000/api/users/login",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              email: formData.email,
+              password: formData.password,
+            }),
+            credentials: "include",
+          }
+        );
 
         const loginData = await loginResponse.json();
 
         if (!loginResponse.ok) {
-          throw new Error('Account created but automatic login failed. Please login manually.');
+          throw new Error(
+            "Account created but automatic login failed. Please login manually."
+          );
         }
 
-        toast.success('Account created successfully!');
+        toast.success("Account created successfully!");
       }
 
-      router.push('/');
+      router.push("/");
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'An error occurred';
+      const errorMessage =
+        error instanceof Error ? error.message : "An error occurred";
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {
@@ -113,8 +124,7 @@ export default function LoginPage() {
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
-                strokeWidth={1.5}
-              >
+                strokeWidth={1.5}>
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -125,12 +135,12 @@ export default function LoginPage() {
           </div>
 
           <h2 className="text-3xl font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-amber-500 mb-2">
-            {isLogin ? 'Welcome Back' : 'Create Account'}
+            {isLogin ? "Welcome Back" : "Create Account"}
           </h2>
           <p className="text-gray-400 text-center mb-8">
             {isLogin
-              ? 'Sign in to continue to your account'
-              : 'Get started with your account'}
+              ? "Sign in to continue to your account"
+              : "Get started with your account"}
           </p>
 
           {error && (
@@ -144,8 +154,7 @@ export default function LoginPage() {
               <div>
                 <label
                   htmlFor="username"
-                  className="block text-sm font-medium text-gray-300 mb-2"
-                >
+                  className="block text-sm font-medium text-gray-300 mb-2">
                   Username
                 </label>
                 <input
@@ -164,8 +173,7 @@ export default function LoginPage() {
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-gray-300 mb-2"
-              >
+                className="block text-sm font-medium text-gray-300 mb-2">
                 Email
               </label>
               <input
@@ -183,8 +191,7 @@ export default function LoginPage() {
             <div>
               <label
                 htmlFor="password"
-                className="block text-sm font-medium text-gray-300 mb-2"
-              >
+                className="block text-sm font-medium text-gray-300 mb-2">
                 Password
               </label>
               <input
@@ -203,36 +210,32 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-gradient-to-r from-red-600 to-amber-600 text-white py-3 px-4 rounded-lg font-semibold hover:from-red-700 hover:to-amber-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-gray-800 shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed"
-            >
+              className="w-full bg-gradient-to-r from-red-600 to-amber-600 text-white py-3 px-4 rounded-lg font-semibold hover:from-red-700 hover:to-amber-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-gray-800 shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed">
               {isLoading ? (
                 <span className="flex items-center justify-center">
                   <svg
                     className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
-                    viewBox="0 0 24 24"
-                  >
+                    viewBox="0 0 24 24">
                     <circle
                       className="opacity-25"
                       cx="12"
                       cy="12"
                       r="10"
                       stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
+                      strokeWidth="4"></circle>
                     <path
                       className="opacity-75"
                       fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
                   Processing...
                 </span>
               ) : isLogin ? (
-                'Sign In'
+                "Sign In"
               ) : (
-                'Sign Up'
+                "Sign Up"
               )}
             </button>
           </form>
@@ -242,22 +245,20 @@ export default function LoginPage() {
               type="button"
               onClick={() => {
                 setIsLogin(!isLogin);
-                setError('');
+                setError("");
               }}
-              className="text-amber-400 hover:text-amber-300 font-medium text-sm focus:outline-none transition-colors duration-200"
-            >
+              className="text-amber-400 hover:text-amber-300 font-medium text-sm focus:outline-none transition-colors duration-200">
               {isLogin
                 ? "Don't have an account? Sign Up"
-                : 'Already have an account? Sign In'}
+                : "Already have an account? Sign In"}
             </button>
           </div>
 
           {isLogin && (
             <div className="mt-4 text-center">
-              <Link 
-                href="/forgot-password" 
-                className="text-sm text-amber-400 hover:text-amber-300 hover:underline transition-colors duration-200"
-              >
+              <Link
+                href="/forgot-password"
+                className="text-sm text-amber-400 hover:text-amber-300 hover:underline transition-colors duration-200">
                 Forgot password?
               </Link>
             </div>
@@ -265,12 +266,16 @@ export default function LoginPage() {
 
           <div className="mt-8 border-t border-gray-700 pt-6">
             <p className="text-xs text-gray-400 text-center">
-              By continuing, you agree to our{' '}
-              <Link href="/terms" className="text-amber-400 hover:underline hover:text-amber-300 transition-colors duration-200">
+              By continuing, you agree to our{" "}
+              <Link
+                href="/terms"
+                className="text-amber-400 hover:underline hover:text-amber-300 transition-colors duration-200">
                 Terms of Service
-              </Link>{' '}
-              and{' '}
-              <Link href="/privacy" className="text-amber-400 hover:underline hover:text-amber-300 transition-colors duration-200">
+              </Link>{" "}
+              and{" "}
+              <Link
+                href="/privacy"
+                className="text-amber-400 hover:underline hover:text-amber-300 transition-colors duration-200">
                 Privacy Policy
               </Link>
               .

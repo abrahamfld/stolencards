@@ -1,15 +1,19 @@
 // src/collections/PurchasedCards.ts
-import type { CollectionConfig, CollectionAfterChangeHook } from 'payload';
+import type { CollectionConfig, CollectionAfterChangeHook } from "payload";
 
-const removeMatchingCreditCard: CollectionAfterChangeHook = async ({ doc, operation, req }) => {
-  if (operation !== 'create') return;
+const removeMatchingCreditCard: CollectionAfterChangeHook = async ({
+  doc,
+  operation,
+  req,
+}) => {
+  if (operation !== "create") return;
 
   const cardNumber = doc.number;
 
   try {
     // Find the matching credit card by number
     const matching = await req.payload.find({
-      collection: 'credit-cards',
+      collection: "credit-cards",
       where: {
         number: {
           equals: cardNumber,
@@ -22,19 +26,19 @@ const removeMatchingCreditCard: CollectionAfterChangeHook = async ({ doc, operat
 
       // Delete it
       await req.payload.delete({
-        collection: 'credit-cards',
+        collection: "credit-cards",
         id: cardToDelete.id,
       });
 
       console.log(`Deleted credit-card with number: ${cardNumber}`);
     }
   } catch (error) {
-    console.error('Failed to delete credit-card after purchase:', error);
+    console.error("Failed to delete credit-card after purchase:", error);
   }
 };
 
 export const PurchasedCards: CollectionConfig = {
-  slug: 'purchased-cards',
+  slug: "purchased-cards",
   access: {
     read: () => true,
     create: () => true,
@@ -42,69 +46,69 @@ export const PurchasedCards: CollectionConfig = {
     delete: () => true,
   },
   admin: {
-    useAsTitle: 'type',
-    group: 'Card Marketplace',
+    useAsTitle: "type",
+    group: "Card Marketplace",
   },
   hooks: {
     afterChange: [removeMatchingCreditCard],
   },
   fields: [
     {
-      name: 'type',
-      type: 'select',
-      options: ['VISA', 'MasterCard', 'AMEX', 'Discover'],
+      name: "type",
+      type: "select",
+      options: ["VISA", "MasterCard", "AMEX", "Discover"],
       required: true,
     },
     {
-      name: 'number',
-      type: 'text',
-      label: 'Card Number',
+      name: "number",
+      type: "text",
+      label: "Card Number",
       required: true,
     },
     {
-      name: 'expiry',
-      type: 'text',
-      label: 'Expiry (MM/YY)',
+      name: "expiry",
+      type: "text",
+      label: "Expiry (MM/YY)",
       required: true,
     },
     {
-      name: 'cvv',
-      type: 'number',
-      label: 'CVV',
+      name: "cvv",
+      type: "number",
+      label: "CVV",
       required: true,
       min: 100,
       max: 999,
     },
     {
-      name: 'balance',
-      type: 'number',
+      name: "balance",
+      type: "number",
       required: true,
       min: 0,
     },
     {
-      name: 'price',
-      type: 'number',
+      name: "price",
+      type: "number",
       required: true,
       min: 0,
     },
     {
-      name: 'country',
-      type: 'text',
+      name: "country",
+      type: "text",
       required: true,
     },
     {
-      name: 'ownerName',
-      type: 'text',
-      label: 'Cardholder Name',
+      name: "ownerName",
+      type: "text",
+      label: "Cardholder Name",
       required: true,
     },
     {
-      name: 'purchasedBy',
-      type: 'relationship',
-      relationTo: 'users',
+      name: "purchasedBy",
+      type: "relationship",
+      relationTo: "users",
       required: true,
       admin: {
-        description: 'The user who purchased this card (selected by email)',
+        description: "The user who purchased this card (selected by email)",
       },
     },
   ],

@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useRef } from 'react';
-import Link from 'next/link';
+import { useState, useEffect, useRef } from "react";
+import Link from "next/link";
 
 type CreditCard = {
   id: string;
@@ -33,7 +33,7 @@ export const CardGridSection = () => {
       setCards(data.docs);
       setTotalPages(Math.ceil(data.totalDocs / cardsPerPage));
     } catch (error) {
-      console.error('Error fetching cards:', error);
+      console.error("Error fetching cards:", error);
     } finally {
       setLoading(false);
     }
@@ -56,15 +56,20 @@ export const CardGridSection = () => {
     return `•••• •••• •••• ${number.slice(-4)}`;
   };
 
-  const formatCVV = () => '•••';
+  const formatCVV = () => "•••";
 
   const getCardTypeColor = (type: string) => {
     switch (type.toLowerCase()) {
-      case 'visa': return 'bg-blue-600';
-      case 'mastercard': return 'bg-red-600';
-      case 'amex': return 'bg-green-600';
-      case 'discover': return 'bg-purple-600';
-      default: return 'bg-gray-600';
+      case "visa":
+        return "bg-blue-600";
+      case "mastercard":
+        return "bg-red-600";
+      case "amex":
+        return "bg-green-600";
+      case "discover":
+        return "bg-purple-600";
+      default:
+        return "bg-gray-600";
     }
   };
 
@@ -77,7 +82,9 @@ export const CardGridSection = () => {
   }
 
   return (
-    <section className="py-16 bg-gradient-to-b from-gray-900 to-black" ref={gridRef}>
+    <section
+      className="py-16 bg-gradient-to-b from-gray-900 to-black"
+      ref={gridRef}>
       <div className="container mx-auto px-4">
         <section className="py-20 text-center">
           <h1 className="text-4xl font-bold mb-4">
@@ -93,9 +100,12 @@ export const CardGridSection = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
           {cards.map((card) => (
-            <div key={card.id} className="bg-gray-800/50 rounded-xl p-6 border border-gray-700 hover:border-red-500/50 transition-colors relative overflow-hidden">
+            <div
+              key={card.id}
+              className="bg-gray-800/50 rounded-xl p-6 border border-gray-700 hover:border-red-500/50 transition-colors relative overflow-hidden">
               <div className="flex justify-between items-start mb-2">
-                <span className={`text-xs font-semibold px-2 py-1 rounded ${getCardTypeColor(card.type)}`}>
+                <span
+                  className={`text-xs font-semibold px-2 py-1 rounded ${getCardTypeColor(card.type)}`}>
                   {card.type.toUpperCase()}
                 </span>
                 <span className="text-xs text-gray-400">
@@ -140,10 +150,9 @@ export const CardGridSection = () => {
                 </div>
               </div>
 
-              <Link 
+              <Link
                 href={`/cards/${card.id}`}
-                className="block w-full mt-6 py-3 bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-700 hover:to-amber-700 text-center text-white font-bold transition-all rounded-md"
-              >
+                className="block w-full mt-6 py-3 bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-700 hover:to-amber-700 text-center text-white font-bold transition-all rounded-md">
                 BUY NOW
               </Link>
             </div>
@@ -157,8 +166,7 @@ export const CardGridSection = () => {
               <button
                 onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
                 disabled={currentPage === 1}
-                className="px-4 py-2 border border-red-800/50 rounded-md text-gray-300 hover:bg-red-900/30 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
+                className="px-4 py-2 border border-red-800/50 rounded-md text-gray-300 hover:bg-red-900/30 disabled:opacity-50 disabled:cursor-not-allowed">
                 Previous
               </button>
 
@@ -180,20 +188,20 @@ export const CardGridSection = () => {
                     onClick={() => handlePageChange(pageNum)}
                     className={`px-4 py-2 rounded-md ${
                       currentPage === pageNum
-                        ? 'bg-red-600 text-white'
-                        : 'text-gray-300 hover:bg-red-900/30'
-                    }`}
-                  >
+                        ? "bg-red-600 text-white"
+                        : "text-gray-300 hover:bg-red-900/30"
+                    }`}>
                     {pageNum}
                   </button>
                 );
               })}
 
               <button
-                onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
+                onClick={() =>
+                  handlePageChange(Math.min(totalPages, currentPage + 1))
+                }
                 disabled={currentPage === totalPages}
-                className="px-4 py-2 border border-red-800/50 rounded-md text-gray-300 hover:bg-red-900/30 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
+                className="px-4 py-2 border border-red-800/50 rounded-md text-gray-300 hover:bg-red-900/30 disabled:opacity-50 disabled:cursor-not-allowed">
                 Next
               </button>
             </nav>

@@ -1,41 +1,41 @@
-import { getPayload } from 'payload';
-import configPromise from '@payload-config';
+import { getPayload } from "payload";
+import configPromise from "@payload-config";
 
 async function seedUsers() {
   const payload = await getPayload({ config: configPromise });
 
   const seedUsersData = [
     {
-      email: 'alice@example.com',
-      username: 'alice',
-      password: 'password123',
+      email: "alice@example.com",
+      username: "alice",
+      password: "password123",
     },
     {
-      email: 'bob@example.com',
-      username: 'bob',
-      password: 'password123',
+      email: "bob@example.com",
+      username: "bob",
+      password: "password123",
     },
     {
-      email: 'carol@example.com',
-      username: 'carol',
-      password: 'password123',
+      email: "carol@example.com",
+      username: "carol",
+      password: "password123",
     },
     {
-      email: 'dave@example.com',
-      username: 'dave',
-      password: 'password123',
+      email: "dave@example.com",
+      username: "dave",
+      password: "password123",
     },
     {
-      email: 'eve@example.com',
-      username: 'eve',
-      password: 'password123',
+      email: "eve@example.com",
+      username: "eve",
+      password: "password123",
     },
   ];
 
   for (const userData of seedUsersData) {
     try {
       const existing = await payload.find({
-        collection: 'users',
+        collection: "users",
         where: { email: { equals: userData.email } },
       });
 
@@ -45,7 +45,7 @@ async function seedUsers() {
       }
 
       const created = await payload.create({
-        collection: 'users',
+        collection: "users",
         data: userData,
       });
 
@@ -55,7 +55,7 @@ async function seedUsers() {
     }
   }
 
-  console.log('✅ Seeding complete.');
+  console.log("✅ Seeding complete.");
 }
 
 seedUsers();

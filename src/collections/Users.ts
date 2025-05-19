@@ -1,7 +1,7 @@
-import type { CollectionConfig } from 'payload';
+import type { CollectionConfig } from "payload";
 
 export const Users: CollectionConfig = {
-  slug: 'users',
+  slug: "users",
   access: {
     read: () => true,
     create: () => true,
@@ -10,40 +10,39 @@ export const Users: CollectionConfig = {
   },
   auth: true,
   admin: {
-    useAsTitle: 'email',
+    useAsTitle: "email",
   },
   fields: [
     {
-      name: 'email',
-      type: 'email',
+      name: "email",
+      type: "email",
       required: true,
     },
     {
-      name: 'username',
-      type: 'text',
+      name: "username",
+      type: "text",
       required: false,
     },
     {
-      name: 'role',
-      type: 'select',
-      options: ['user', 'admin'],
-      defaultValue: 'user',
+      name: "role",
+      type: "select",
+      options: ["user", "admin"],
+      defaultValue: "user",
       required: true,
     },
     {
-      name: 'walletBalance',
-      type: 'number',
+      name: "walletBalance",
+      type: "number",
       defaultValue: 0,
       min: 0,
     },
     {
-      name: 'btcWalletAddress',
-      type: 'text',
+      name: "btcWalletAddress",
+      type: "text",
     },
     {
-      name: 'xmrWalletAddress',
-      type: 'text',
+      name: "xmrWalletAddress",
+      type: "text",
     },
-    
   ],
 };

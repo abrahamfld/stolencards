@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 type Transaction = {
   id: string;
@@ -18,6 +19,7 @@ export const Topbar = () => {
   const [btcPrice, setBtcPrice] = useState('$63,248.42');
   const [walletBalance, setWalletBalance] = useState(0);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
   const [transactions, setTransactions] = useState<Transaction[]>([
     {
       id: '1',
@@ -57,7 +59,6 @@ export const Topbar = () => {
         const response = await fetch('/api/users/me');
         if (!response.ok) throw new Error('User not authenticated');
         const data = await response.json();
-        console.log(data.user);
         setWalletBalance(data.user.walletBalance);
       } catch (error) {
         console.error('User not authenticated. Redirecting to login...');
@@ -121,11 +122,73 @@ export const Topbar = () => {
   return (
     <div className="bg-gradient-to-r from-gray-800 to-gray-900 text-xs text-gray-300 py-2 px-4 border-b border-gray-700 relative">
       <div className="container mx-auto flex justify-between items-center">
+        {/* Left side - stolencards.cc always on left */}
         <div className="flex items-center space-x-4">
-          <span className="hidden sm:inline-flex items-center">
-            <span className="w-2 h-2 bg-green-400 rounded-full mr-2"></span>
-            <span>24/7 Support</span>
-          </span>
+          <Link href="/" className="font-bold hover:text-amber-400">
+            stolencards.cc
+          </Link>
+          
+          {/* Navigation Dropdown */}
+          <div className="relative">
+            <button 
+              onClick={() => setShowDropdown(!showDropdown)}
+              className="flex items-center space-x-1 hover:text-amber-400"
+            >
+              <span>Menu</span>
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                className="h-3 w-3" 
+                viewBox="0 0 20 20" 
+                fill="currentColor"
+              >
+                <path 
+                  fillRule="evenodd" 
+                  d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" 
+                  clipRule="evenodd" 
+                />
+              </svg>
+            </button>
+
+            {showDropdown && (
+              <div 
+                className="absolute left-0 mt-2 w-48 bg-gray-800 rounded-md shadow-lg border border-gray-700 z-50"
+                onMouseLeave={() => setShowDropdown(false)}
+              >
+                <div className="py-1">
+                  <Link 
+                    href="/my-purchases" 
+                    className="block px-4 py-2 text-sm hover:bg-gray-700"
+                    onClick={() => setShowDropdown(false)}
+                  >
+                    My Purchases
+                  </Link>
+                  <Link 
+                    href="/deposit" 
+                    className="block px-4 py-2 text-sm hover:bg-gray-700"
+                    onClick={() => setShowDropdown(false)}
+                  >
+                    Deposit/Withdraw
+                  </Link>
+                  <button
+                    onClick={async () => {
+                      setShowDropdown(false);
+                      try {
+                        await fetch('/api/users/logout', { method: 'POST' });
+                      } catch (err) {
+                        console.error('Logout failed', err);
+                      } finally {
+                        router.push('/login');
+                      }
+                    }}
+                    className="w-full text-left block px-4 py-2 text-sm hover:bg-gray-700 text-red-400"
+                  >
+                    Logout
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
           <span className="hidden md:inline-flex items-center">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-amber-400 mr-1" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
@@ -134,6 +197,7 @@ export const Topbar = () => {
           </span>
         </div>
 
+        {/* Right side - wallet balance, notifications, logout */}
         <div className="flex items-center space-x-6">
           <div className="flex items-center space-x-1">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -206,21 +270,21 @@ export const Topbar = () => {
             )}
           </div>
 
+          {/* Desktop Logout Button (hidden on mobile since it's in dropdown) */}
           <button
-  onClick={async () => {
-    try {
-      await fetch('/api/users/logout', { method: 'POST' }); // adjust if your logout logic differs
-    } catch (err) {
-      console.error('Logout failed', err);
-    } finally {
-      router.push('/login');
-    }
-  }}
-  className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-xs font-semibold"
->
-  Logout
-</button>
-
+            onClick={async () => {
+              try {
+                await fetch('/api/users/logout', { method: 'POST' });
+              } catch (err) {
+                console.error('Logout failed', err);
+              } finally {
+                router.push('/login');
+              }
+            }}
+            className="hidden sm:block px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-xs font-semibold"
+          >
+            Logout
+          </button>
         </div>
       </div>
     </div>

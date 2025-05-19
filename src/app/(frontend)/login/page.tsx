@@ -33,7 +33,7 @@ export default function LoginPage() {
     try {
       if (isLogin) {
         // Handle login
-        const response = await fetch("http://localhost:3000/api/users/login", {
+        const response = await fetch("/api/users/login", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -55,7 +55,7 @@ export default function LoginPage() {
       } else {
         // Handle registration
         const registerResponse = await fetch(
-          "http://localhost:3000/api/users",
+          "/api/users",
           {
             method: "POST",
             headers: {
@@ -76,7 +76,7 @@ export default function LoginPage() {
 
         // Auto-login after successful registration
         const loginResponse = await fetch(
-          "http://localhost:3000/api/users/login",
+          "/api/users/login",
           {
             method: "POST",
             headers: {

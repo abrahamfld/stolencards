@@ -1,9 +1,8 @@
-'use client'; // Mark this as a Client Component
+'use client';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import '../styles.css'
 import { toast } from 'react-hot-toast';
 
 export default function LoginPage() {
@@ -15,6 +14,7 @@ export default function LoginPage() {
     username: '',
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -22,48 +22,91 @@ export default function LoginPage() {
       ...prev,
       [name]: value,
     }));
+    setError(''); // Clear error when user types
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-
-    const endpoint = isLogin 
-      ? 'http://localhost:3000/api/users/login' 
-      : 'http://localhost:3000/api/users';
+    setError('');
 
     try {
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-        credentials: 'include', // Important for cookies/sessions
-      });
+      if (isLogin) {
+        // Handle login
+        const response = await fetch('http://localhost:3000/api/users/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: formData.email,
+            password: formData.password
+          }),
+          credentials: 'include',
+        });
 
-      const data = await response.json();
+        const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data.message || 'Something went wrong');
+        if (!response.ok) {
+          throw new Error(data.message || 'Invalid email or password');
+        }
+
+        toast.success('Login successful!');
+      } else {
+        // Handle registration
+        const registerResponse = await fetch('http://localhost:3000/api/users', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData),
+          credentials: 'include',
+        });
+
+        const registerData = await registerResponse.json();
+
+        if (!registerResponse.ok) {
+          throw new Error(registerData.message || 'Registration failed. Please try again.');
+        }
+
+        // Auto-login after successful registration
+        const loginResponse = await fetch('http://localhost:3000/api/users/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: formData.email,
+            password: formData.password
+          }),
+          credentials: 'include',
+        });
+
+        const loginData = await loginResponse.json();
+
+        if (!loginResponse.ok) {
+          throw new Error('Account created but automatic login failed. Please login manually.');
+        }
+
+        toast.success('Account created successfully!');
       }
 
-
-      toast.success(isLogin ? 'Login successful!' : 'Account created!');
       router.push('/');
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'An error occurred');
+      const errorMessage = error instanceof Error ? error.message : 'An error occurred';
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 p-4">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-900 to-black p-4">
+      <div className="w-full max-w-md bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-700">
         <div className="p-8">
           <div className="flex justify-center mb-8">
-            <div className="w-20 h-20 rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 flex items-center justify-center shadow-lg">
+            <div className="w-20 h-20 rounded-2xl bg-gradient-to-r from-red-600 to-amber-600 flex items-center justify-center shadow-lg">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-10 w-10 text-white"
@@ -81,21 +124,27 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <h2 className="text-3xl font-bold text-center text-gray-900 mb-2">
+          <h2 className="text-3xl font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-amber-500 mb-2">
             {isLogin ? 'Welcome Back' : 'Create Account'}
           </h2>
-          <p className="text-gray-500 text-center mb-8">
+          <p className="text-gray-400 text-center mb-8">
             {isLogin
               ? 'Sign in to continue to your account'
-              : 'Get started with your free account'}
+              : 'Get started with your account'}
           </p>
+
+          {error && (
+            <div className="mb-4 p-3 bg-red-900/30 border border-red-700 rounded-lg text-red-300 text-sm">
+              {error}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
             {!isLogin && (
               <div>
                 <label
                   htmlFor="username"
-                  className="block text-sm font-medium text-gray-700 mb-2"
+                  className="block text-sm font-medium text-gray-300 mb-2"
                 >
                   Username
                 </label>
@@ -105,7 +154,7 @@ export default function LoginPage() {
                   name="username"
                   value={formData.username}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all duration-200"
+                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all duration-200 text-white placeholder-gray-400"
                   placeholder="Enter your username"
                   required
                 />
@@ -115,7 +164,7 @@ export default function LoginPage() {
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-gray-700 mb-2"
+                className="block text-sm font-medium text-gray-300 mb-2"
               >
                 Email
               </label>
@@ -125,7 +174,7 @@ export default function LoginPage() {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all duration-200"
+                className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all duration-200 text-white placeholder-gray-400"
                 placeholder="your@email.com"
                 required
               />
@@ -134,7 +183,7 @@ export default function LoginPage() {
             <div>
               <label
                 htmlFor="password"
-                className="block text-sm font-medium text-gray-700 mb-2"
+                className="block text-sm font-medium text-gray-300 mb-2"
               >
                 Password
               </label>
@@ -144,7 +193,7 @@ export default function LoginPage() {
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all duration-200"
+                className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all duration-200 text-white placeholder-gray-400"
                 placeholder="••••••••"
                 required
                 minLength={4}
@@ -154,7 +203,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-3 px-4 rounded-xl font-semibold hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed"
+              className="w-full bg-gradient-to-r from-red-600 to-amber-600 text-white py-3 px-4 rounded-lg font-semibold hover:from-red-700 hover:to-amber-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-gray-800 shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed"
             >
               {isLoading ? (
                 <span className="flex items-center justify-center">
@@ -191,8 +240,11 @@ export default function LoginPage() {
           <div className="mt-6 text-center">
             <button
               type="button"
-              onClick={() => setIsLogin(!isLogin)}
-              className="text-indigo-600 hover:text-indigo-800 font-medium text-sm focus:outline-none transition-colors duration-200"
+              onClick={() => {
+                setIsLogin(!isLogin);
+                setError('');
+              }}
+              className="text-amber-400 hover:text-amber-300 font-medium text-sm focus:outline-none transition-colors duration-200"
             >
               {isLogin
                 ? "Don't have an account? Sign Up"
@@ -204,21 +256,21 @@ export default function LoginPage() {
             <div className="mt-4 text-center">
               <Link 
                 href="/forgot-password" 
-                className="text-sm text-indigo-600 hover:text-indigo-800 hover:underline transition-colors duration-200"
+                className="text-sm text-amber-400 hover:text-amber-300 hover:underline transition-colors duration-200"
               >
                 Forgot password?
               </Link>
             </div>
           )}
 
-          <div className="mt-8 border-t border-gray-100 pt-6">
-            <p className="text-xs text-gray-500 text-center">
+          <div className="mt-8 border-t border-gray-700 pt-6">
+            <p className="text-xs text-gray-400 text-center">
               By continuing, you agree to our{' '}
-              <Link href="/terms" className="text-indigo-600 hover:underline hover:text-indigo-800 transition-colors duration-200">
+              <Link href="/terms" className="text-amber-400 hover:underline hover:text-amber-300 transition-colors duration-200">
                 Terms of Service
               </Link>{' '}
               and{' '}
-              <Link href="/privacy" className="text-indigo-600 hover:underline hover:text-indigo-800 transition-colors duration-200">
+              <Link href="/privacy" className="text-amber-400 hover:underline hover:text-amber-300 transition-colors duration-200">
                 Privacy Policy
               </Link>
               .

@@ -1,10 +1,11 @@
 'use client';
 
-import { use, useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter , useParams } from 'next/navigation';
 import Link from 'next/link';
 import { Topbar } from '../../components/Topbar';
 import { Footer } from '../../components/Footer';
+
 
 type CreditCard = {
   id: string;
@@ -30,9 +31,10 @@ type PageParams = {
   id: string;
 };
 
-export default function CardCheckoutPage({ params }: { params: Promise<PageParams> }) {
+export default function CardCheckoutPage() {
   const router = useRouter();
-  const { id } = use(params);
+  const params = useParams();
+  const id = params.id as string;
   const [card, setCard] = useState<CreditCard | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [timer, setTimer] = useState(900);
@@ -42,6 +44,8 @@ export default function CardCheckoutPage({ params }: { params: Promise<PageParam
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [error, setError] = useState('');
   const [showPaymentDetails, setShowPaymentDetails] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
 
   const storageKey = `pendingPayment_${id}`;
 
@@ -67,16 +71,32 @@ export default function CardCheckoutPage({ params }: { params: Promise<PageParam
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setIsLoading(true);
+        setNotFound(false);
+        
         const cardRes = await fetch(`/api/credit-cards/${id}`);
+        if (!cardRes.ok) {
+          if (cardRes.status === 404) {
+            setNotFound(true);
+            return;
+          }
+          throw new Error('Failed to fetch card');
+        }
         const cardData = await cardRes.json();
         setCard(cardData);
 
         const userRes = await fetch('/api/users/me');
+        if (!userRes.ok) {
+          router.push('/login');
+          return;
+        }
         const userData = await userRes.json();
         setUser(userData.user);
       } catch (error) {
         console.error('Error fetching data:', error);
-        router.push('/');
+        setError('Failed to load data. Please try again.');
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -90,7 +110,10 @@ export default function CardCheckoutPage({ params }: { params: Promise<PageParam
     const interval = setInterval(() => {
       setTimer((prev) => {
         const next = prev > 0 ? prev - 1 : 0;
-        if (next === 0) localStorage.removeItem(storageKey);
+        if (next === 0) {
+          localStorage.removeItem(storageKey);
+          setShowPaymentDetails(false);
+        }
         return next;
       });
     }, 1000);
@@ -146,13 +169,10 @@ export default function CardCheckoutPage({ params }: { params: Promise<PageParam
 
     if (user.walletBalance < card.price) {
       setError('Insufficient funds in your wallet');
-
-      // Persist state
       localStorage.setItem(
         storageKey,
         JSON.stringify({ timer, timestamp: Date.now() })
       );
-
       return;
     }
 
@@ -188,10 +208,41 @@ export default function CardCheckoutPage({ params }: { params: Promise<PageParam
     localStorage.removeItem(storageKey);
   };
 
-  if (!card || !user) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-900 flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-500"></div>
+      </div>
+    );
+  }
+
+  if (notFound) {
+    return (
+      <>
+        <Topbar />
+        <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-gray-100 p-4 md:p-8 flex items-center justify-center">
+          <div className="max-w-3xl mx-auto text-center">
+            <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-amber-600 mb-4">
+              Card Not Found
+            </h1>
+            <p className="text-gray-300 mb-6">The card you're looking for doesn't exist or may have been purchased.</p>
+            <Link
+              href="/cards"
+              className="inline-block bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg transition-colors"
+            >
+              Browse Available Cards
+            </Link>
+          </div>
+        </div>
+        <Footer />
+      </>
+    );
+  }
+
+  if (!card || !user) {
+    return (
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <p className="text-red-500">Failed to load data</p>
       </div>
     );
   }
@@ -214,6 +265,12 @@ export default function CardCheckoutPage({ params }: { params: Promise<PageParam
               </p>
             )}
           </div>
+
+          {error && (
+            <div className="mb-4 p-3 bg-red-900/30 border border-red-700 rounded-lg text-red-300">
+              {error}
+            </div>
+          )}
 
           <div className="bg-gray-800/50 rounded-xl p-6 mb-6 border border-red-800/30">
             <div className="flex justify-between items-start mb-3">

@@ -32,10 +32,6 @@ export const CardGridSection = () => {
       const data = await response.json();
       setCards(data.docs);
       setTotalPages(Math.ceil(data.totalDocs / cardsPerPage));
-      
- 
-
-
     } catch (error) {
       console.error('Error fetching cards:', error);
     } finally {
@@ -45,20 +41,30 @@ export const CardGridSection = () => {
 
   useEffect(() => {
     fetchCards(currentPage);
-  }, []); // Initial load
-
-
-
+  }, []);
 
   const handlePageChange = async (page: number) => {
     if (page === currentPage) return;
-    
     setCurrentPage(page);
     await fetchCards(page);
-    
-    // Remove focus from clicked button
     if (document.activeElement instanceof HTMLElement) {
       document.activeElement.blur();
+    }
+  };
+
+  const formatCardNumber = (number: string) => {
+    return `•••• •••• •••• ${number.slice(-4)}`;
+  };
+
+  const formatCVV = () => '•••';
+
+  const getCardTypeColor = (type: string) => {
+    switch (type.toLowerCase()) {
+      case 'visa': return 'bg-blue-600';
+      case 'mastercard': return 'bg-red-600';
+      case 'amex': return 'bg-green-600';
+      case 'discover': return 'bg-purple-600';
+      default: return 'bg-gray-600';
     }
   };
 
@@ -72,8 +78,7 @@ export const CardGridSection = () => {
 
   return (
     <section className="py-16 bg-gradient-to-b from-gray-900 to-black" ref={gridRef}>
-        <div className="container mx-auto px-4">
-        
+      <div className="container mx-auto px-4">
         <section className="py-20 text-center">
           <h1 className="text-4xl font-bold mb-4">
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-amber-600">
@@ -86,77 +91,60 @@ export const CardGridSection = () => {
           </p>
         </section>
 
-
-
-        {/* Cards Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
           {cards.map((card) => (
-            <div key={card.id} className="bg-gray-800/50 hover:bg-gray-800/70 transition-all rounded-xl overflow-hidden border border-red-800/30 hover:border-red-500/50 shadow-xl hover:shadow-red-500/20">
-              <div className="p-6">
-                {/* Card Header */}
-                <div className="flex justify-between items-start mb-4">
-                  <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                    card.type === 'VISA' ? 'bg-blue-500/20 text-blue-400' :
-                    card.type === 'MasterCard' ? 'bg-red-500/20 text-red-400' :
-                    'bg-green-500/20 text-green-400'
-                  }`}>
-                    {card.type}
-                  </span>
-                  <span className="bg-clip-text text-transparent bg-gradient-to-r from-red-400 to-amber-500 font-bold">
-                   Balance : ${card.balance.toLocaleString()}
-                  </span>
-                </div>
+            <div key={card.id} className="bg-gray-800/50 rounded-xl p-6 border border-gray-700 hover:border-red-500/50 transition-colors relative overflow-hidden">
+              <div className="flex justify-between items-start mb-2">
+                <span className={`text-xs font-semibold px-2 py-1 rounded ${getCardTypeColor(card.type)}`}>
+                  {card.type.toUpperCase()}
+                </span>
+                <span className="text-xs text-gray-400">
+                  Balance: ${card.balance.toLocaleString()}
+                </span>
+              </div>
 
-                {/* Card Preview */}
-                <div className="bg-gradient-to-br from-gray-900 to-black rounded-lg p-4 mb-6 border border-red-800/30">
-                  <div className="flex justify-between items-center mb-6">
-                    <span className="text-xl font-bold text-red-400">{card.type}</span>
-                    <div className="flex space-x-2">
-                      <div className={`w-8 h-5 rounded-sm ${
-                        card.type === 'VISA' ? 'bg-blue-500' :
-                        card.type === 'MasterCard' ? 'bg-red-500' :
-                        'bg-green-500'
-                      }`}></div>
-                      <div className="w-8 h-5 bg-gray-800 rounded-sm"></div>
-                    </div>
-                  </div>
-                  <div className="text-gray-400 text-sm mb-1">Card Number</div>
-                  <div className="text-white text-lg font-mono tracking-widest mb-6">
-                    •••• •••• •••• {card.number.slice(-4)}
-                  </div>
-                  <div className="flex justify-between text-red-300">
-                    <div>
-                      <div className="text-gray-400 text-sm mb-1">Holder</div>
-                      <div className="text-white">{card.ownerName}</div>
-                    </div>
-                    <div>
-                      <div className="text-gray-400 text-sm mb-1">Expires</div>
-                      <div className="text-white">{card.expiry}</div>
-                    </div>
-                  </div>
-                </div>
+              <div className="my-4">
+                <h3 className="text-xl font-bold font-mono">
+                  {formatCardNumber(card.number)}
+                </h3>
+                <p className="text-gray-400 text-sm mt-1">{card.ownerName}</p>
+              </div>
 
-                {/* Card Details */}
-                <div className="flex justify-between items-center">
-                  <div>
-                    <div className="text-gray-400 text-sm">Origin</div>
-                    <div className="text-white font-medium">{card.country}</div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-gray-400 text-sm">Acquisition Cost</div>
-                    <div className="bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-amber-600 font-bold text-xl">
-                      ${card.price}
-                    </div>
-                  </div>
+              <div className="grid grid-cols-3 gap-4 mt-4">
+                <div>
+                  <p className="text-xs text-gray-400">Expires</p>
+                  <p className="font-mono">{card.expiry}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-400">CVV</p>
+                  <p className="font-mono">{formatCVV()}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-400">Country</p>
+                  <p>{card.country}</p>
                 </div>
               </div>
 
-              {/* Buy Button */}
+              <div className="grid grid-cols-2 gap-4 mt-4">
+                <div>
+                  <p className="text-xs text-gray-400">Balance</p>
+                  <p className="text-xl font-bold text-green-400">
+                    ${card.balance.toLocaleString()}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-400">Price</p>
+                  <p className="text-lg font-bold text-amber-400">
+                    ${card.price.toLocaleString()}
+                  </p>
+                </div>
+              </div>
+
               <Link 
                 href={`/cards/${card.id}`}
-                className="block w-full py-3 bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-700 hover:to-amber-700 text-center text-white font-bold transition-all"
+                className="block w-full mt-6 py-3 bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-700 hover:to-amber-700 text-center text-white font-bold transition-all rounded-md"
               >
-                BUY
+                BUY NOW
               </Link>
             </div>
           ))}
@@ -173,7 +161,7 @@ export const CardGridSection = () => {
               >
                 Previous
               </button>
-              
+
               {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                 let pageNum;
                 if (totalPages <= 5) {

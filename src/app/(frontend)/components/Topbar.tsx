@@ -49,6 +49,7 @@ export const Topbar = () => {
       read: true,
     },
   ]);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const unreadCount = transactions.filter((t) => !t.read).length;
   const router = useRouter();
@@ -57,12 +58,21 @@ export const Topbar = () => {
     const fetchWalletBalance = async () => {
       try {
         const response = await fetch("/api/users/me");
-        if (!response.ok) throw new Error("User not authenticated");
-        const data = await response.json();
-        setWalletBalance(data.user.walletBalance);
+        if (response.ok) {
+          const data = await response.json();
+          setWalletBalance(data.user?.walletBalance || 0);
+
+          if(data.user){
+
+            setIsLoggedIn(true);
+          }
+        } else {
+          setIsLoggedIn(false);
+        }
       } catch (error) {
-        console.error("User not authenticated. Redirecting to login...");
-        router.push("/login");
+        console.log("User not authenticated - showing public view");
+        setWalletBalance(0);
+        setIsLoggedIn(false);
       }
     };
 
@@ -126,7 +136,20 @@ export const Topbar = () => {
 
   const formatTimestamp = (timestamp: string) => {
     const date = new Date(timestamp);
-    return `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+    return date.toLocaleDateString();
+  };
+
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/users/logout", { method: "POST" });
+      router.push("/login");
+    } catch (err) {
+      console.error("Logout failed", err);
+    }
+  };
+
+  const handleLogin = () => {
+    router.push("/login");
   };
 
   return (
@@ -162,31 +185,26 @@ export const Topbar = () => {
                 className="absolute left-0 mt-2 w-48 bg-gray-800 rounded-md shadow-lg border border-gray-700 z-50"
                 onMouseLeave={() => setShowDropdown(false)}>
                 <div className="py-1">
-                  <Link
-                    href="/my-purchases"
-                    className="block px-4 py-2 text-sm hover:bg-gray-700"
-                    onClick={() => setShowDropdown(false)}>
-                    My Purchases
-                  </Link>
-                  <Link
-                    href="/deposit"
-                    className="block px-4 py-2 text-sm hover:bg-gray-700"
-                    onClick={() => setShowDropdown(false)}>
-                    Deposit/Withdraw
-                  </Link>
+                  {isLoggedIn && (
+                    <>
+                      <Link
+                        href="/my-purchases"
+                        className="block px-4 py-2 text-sm hover:bg-gray-700"
+                        onClick={() => setShowDropdown(false)}>
+                        My Purchases
+                      </Link>
+                      <Link
+                        href="/deposit"
+                        className="block px-4 py-2 text-sm hover:bg-gray-700"
+                        onClick={() => setShowDropdown(false)}>
+                        Deposit/Withdraw
+                      </Link>
+                    </>
+                  )}
                   <button
-                    onClick={async () => {
-                      setShowDropdown(false);
-                      try {
-                        await fetch("/api/users/logout", { method: "POST" });
-                      } catch (err) {
-                        console.error("Logout failed", err);
-                      } finally {
-                        router.push("/login");
-                      }
-                    }}
+                    onClick={isLoggedIn ? handleLogout : handleLogin}
                     className="w-full text-left block px-4 py-2 text-sm hover:bg-gray-700 text-red-400">
-                    Logout
+                    {isLoggedIn ? "Logout" : "Login/Register"}
                   </button>
                 </div>
               </div>
@@ -211,110 +229,108 @@ export const Topbar = () => {
 
         {/* Right side - wallet balance, notifications, logout */}
         <div className="flex items-center space-x-6">
-          <div className="flex items-center space-x-1">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-4 w-4 text-green-400"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"
-              />
-            </svg>
-            <span>${walletBalance.toLocaleString()}</span>
-          </div>
-
-          <div className="relative">
-            <button
-              className="text-gray-300 hover:text-amber-400 relative"
-              onClick={() => setShowNotifications(!showNotifications)}>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-4 w-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-                />
-              </svg>
-
-              {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                  {unreadCount}
-                </span>
-              )}
-            </button>
-
-            {showNotifications && (
-              <div className="absolute right-0 mt-2 w-80 bg-gray-800 rounded-lg shadow-xl border border-gray-700 z-50">
-                <div className="p-3 text-sm font-bold border-b border-gray-700 bg-gray-900/50">
-                  Recent Transaction
-                  <span className="text-gray-400 font-normal ml-2">
-                    ({transactions.length} records)
-                  </span>
-                </div>
-
-                <div className="max-h-96 overflow-y-auto">
-                  {transactions.map((transaction) => (
-                    <div
-                      key={transaction.id}
-                      className={`p-3 hover:bg-gray-700/50 cursor-pointer border-b border-gray-700 last:border-0 ${
-                        !transaction.read ? "bg-gray-900/30" : ""
-                      }`}
-                      onClick={() => markAsRead(transaction.id)}>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-3">
-                          <span className="text-xl">
-                            {getTransactionIcon(transaction.type)}
-                          </span>
-                          <div>
-                            <div className="capitalize font-medium">
-                              {transaction.type}
-                            </div>
-                            <div
-                              className={`text-xs ${getStatusColor(transaction.status)}`}>
-                              {transaction.status}
-                            </div>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <div className="font-mono">
-                            {transaction.amount.toLocaleString()}{" "}
-                            {transaction.currency}
-                          </div>
-                          <div className="text-xs text-gray-400 mt-1">
-                            {formatTimestamp(transaction.timestamp)}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+          {isLoggedIn && (
+            <>
+              <div className="flex items-center space-x-1">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-4 w-4 text-green-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"
+                  />
+                </svg>
+                <span>${walletBalance.toLocaleString()}</span>
               </div>
-            )}
-          </div>
 
-          {/* Desktop Logout Button (hidden on mobile since it's in dropdown) */}
+              <div className="relative">
+                <button
+                  className="text-gray-300 hover:text-amber-400 relative"
+                  onClick={() => setShowNotifications(!showNotifications)}>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+                    />
+                  </svg>
+
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                      {unreadCount}
+                    </span>
+                  )}
+                </button>
+
+                {showNotifications && (
+                  <div className="absolute right-0 mt-2 w-80 bg-gray-800 rounded-lg shadow-xl border border-gray-700 z-50">
+                    <div className="p-3 text-sm font-bold border-b border-gray-700 bg-gray-900/50">
+                      Recent Transaction
+                      <span className="text-gray-400 font-normal ml-2">
+                        ({transactions.length} records)
+                      </span>
+                    </div>
+
+                    <div className="max-h-96 overflow-y-auto">
+                      {transactions.map((transaction) => (
+                        <div
+                          key={transaction.id}
+                          className={`p-3 hover:bg-gray-700/50 cursor-pointer border-b border-gray-700 last:border-0 ${
+                            !transaction.read ? "bg-gray-900/30" : ""
+                          }`}
+                          onClick={() => markAsRead(transaction.id)}>
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-3">
+                              <span className="text-xl">
+                                {getTransactionIcon(transaction.type)}
+                              </span>
+                              <div>
+                                <div className="capitalize font-medium">
+                                  {transaction.type}
+                                </div>
+                                <div
+                                  className={`text-xs ${getStatusColor(
+                                    transaction.status
+                                  )}`}>
+                                  {transaction.status}
+                                </div>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <div className="font-mono">
+                                {transaction.amount.toLocaleString()}{" "}
+                                {transaction.currency}
+                              </div>
+                              <div className="text-xs text-gray-400 mt-1">
+                                {formatTimestamp(transaction.timestamp)}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+
+          {/* Desktop Auth Button (hidden on mobile since it's in dropdown) */}
           <button
-            onClick={async () => {
-              try {
-                await fetch("/api/users/logout", { method: "POST" });
-              } catch (err) {
-                console.error("Logout failed", err);
-              } finally {
-                router.push("/login");
-              }
-            }}
+            onClick={isLoggedIn ? handleLogout : handleLogin}
             className="hidden sm:block px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-xs font-semibold">
-            Logout
+            {isLoggedIn ? "Logout" : "Login/Register"}
           </button>
         </div>
       </div>

@@ -37,16 +37,14 @@ export default function CardCheckoutPage() {
   const [card, setCard] = useState<CreditCard | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [timer, setTimer] = useState(900);
-  const [paymentMethod, setPaymentMethod] = useState<"btc" | "xmr" | "wallet">(
-    "wallet"
-  );
-  const [copied, setCopied] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [error, setError] = useState("");
   const [showPaymentDetails, setShowPaymentDetails] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
   const storageKey = `pendingPayment_${id}`;
 
@@ -66,7 +64,7 @@ export default function CardCheckoutPage() {
         localStorage.removeItem(storageKey);
       }
     }
-  }, [id]);
+  }, [id, storageKey]);
 
   // Fetch card and user
   useEffect(() => {
@@ -75,6 +73,7 @@ export default function CardCheckoutPage() {
         setIsLoading(true);
         setNotFound(false);
 
+        // Fetch card data (available to all users)
         const cardRes = await fetch(`/api/credit-cards/${id}`);
         if (!cardRes.ok) {
           if (cardRes.status === 404) {
@@ -86,13 +85,18 @@ export default function CardCheckoutPage() {
         const cardData = await cardRes.json();
         setCard(cardData);
 
-        const userRes = await fetch("/api/users/me");
-        if (!userRes.ok) {
-          router.push("/login");
-          return;
+        // Try to fetch user data (optional for logged-in users)
+        try {
+          const userRes = await fetch("/api/users/me");
+          if (userRes.ok) {
+            const userData = await userRes.json();
+            setUser(userData.user);
+            setIsLoggedIn(true);
+          }
+        } catch (userError) {
+          console.log("User not logged in - showing public view");
+          setIsLoggedIn(false);
         }
-        const userData = await userRes.json();
-        setUser(userData.user);
       } catch (error) {
         console.error("Error fetching data:", error);
         setError("Failed to load data. Please try again.");
@@ -104,7 +108,7 @@ export default function CardCheckoutPage() {
     fetchData();
   }, [id, router]);
 
-  // Countdown
+  // Countdown timer
   useEffect(() => {
     if (!showPaymentDetails) return;
 
@@ -120,19 +124,13 @@ export default function CardCheckoutPage() {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [showPaymentDetails]);
+  }, [showPaymentDetails, storageKey]);
 
-  // Format time
+  // Format time as MM:SS
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, "0")}`;
-  };
-
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
   };
 
   const recordPurchase = async () => {
@@ -157,7 +155,6 @@ export default function CardCheckoutPage() {
       });
 
       if (!response.ok) throw new Error("Failed to record purchase");
-
       return await response.json();
     } catch (err) {
       console.error("Error recording purchase:", err);
@@ -166,7 +163,10 @@ export default function CardCheckoutPage() {
   };
 
   const handleWalletPayment = async () => {
-    if (!user || !card) return;
+    if (!user || !card) {
+      setShowLoginPrompt(true);
+      return;
+    }
 
     if (user.walletBalance < card.price) {
       setError("Insufficient funds in your wallet");
@@ -201,6 +201,18 @@ export default function CardCheckoutPage() {
     } finally {
       setIsProcessing(false);
     }
+  };
+
+  const handlePayButtonClick = () => {
+    if (!isLoggedIn) {
+      setShowLoginPrompt(true);
+      return;
+    }
+    setShowPaymentDetails(true);
+    localStorage.setItem(
+      storageKey,
+      JSON.stringify({ timer: 900, timestamp: Date.now() })
+    );
   };
 
   const cancelPayment = () => {
@@ -242,10 +254,10 @@ export default function CardCheckoutPage() {
     );
   }
 
-  if (!card || !user) {
+  if (!card) {
     return (
       <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-        <p className="text-red-500">Failed to load data</p>
+        <p className="text-red-500">Failed to load card data</p>
       </div>
     );
   }
@@ -298,16 +310,38 @@ export default function CardCheckoutPage() {
             </p>
           </div>
 
+          {/* Login Prompt Modal */}
+          {showLoginPrompt && (
+            <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
+              <div className="bg-gray-800 rounded-lg p-6 max-w-md w-full border border-red-800/50">
+                <h3 className="text-xl font-bold text-red-400 mb-4">
+                  Login Required
+                </h3>
+                <p className="text-gray-300 mb-6">
+                  You need to be logged in to complete this purchase. Please
+                  login or register to continue.
+                </p>
+                <div className="flex flex-col space-y-3">
+                  <Link
+                    href="/login"
+                    className="w-full py-3 px-4 rounded-lg font-bold bg-red-600 hover:bg-red-700 text-center transition-colors">
+                    Login
+                  </Link>
+
+                  <button
+                    onClick={() => setShowLoginPrompt(false)}
+                    className="w-full py-3 px-4 rounded-lg font-bold text-gray-300 hover:text-white underline">
+                    Continue Browsing
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Initial Pay button */}
           {!showPaymentDetails ? (
             <button
-              onClick={() => {
-                setShowPaymentDetails(true);
-                localStorage.setItem(
-                  storageKey,
-                  JSON.stringify({ timer: 900, timestamp: Date.now() })
-                );
-              }}
+              onClick={handlePayButtonClick}
               className="w-full py-3 px-4 rounded-lg font-bold bg-red-600 hover:bg-red-700 transition-colors flex items-center justify-center gap-2">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -322,112 +356,138 @@ export default function CardCheckoutPage() {
                   d="M5 13l4 4L19 7"
                 />
               </svg>
-              Pay
+              {isLoggedIn ? "Pay" : "Purchase Card"}
             </button>
           ) : (
-            // Wallet Payment Section
+            // Payment Section
             <div className="space-y-4 mt-6">
-              <h3 className="text-xl font-bold text-red-400">Wallet Payment</h3>
+              <h3 className="text-xl font-bold text-red-400">Payment Method</h3>
 
-              <div
-                className={`p-4 rounded-md ${user.walletBalance < card.price ? "bg-red-900/20 border border-red-600" : "bg-gray-900"}`}>
-                <p className="text-gray-300 mb-1">
-                  Your Wallet Balance: ${user.walletBalance.toFixed(2)}
-                </p>
-                {user.walletBalance < card.price && (
-                  <p className="text-sm text-red-300">
-                    You need ${(card.price - user.walletBalance).toFixed(2)}{" "}
-                    more to complete this purchase.
-                  </p>
-                )}
-              </div>
-
-              {user.walletBalance < card.price ? (
+              {isLoggedIn ? (
                 <>
+                  <div
+                    className={`p-4 rounded-md ${
+                      user && user.walletBalance < card.price
+                        ? "bg-red-900/20 border border-red-600"
+                        : "bg-gray-900"
+                    }`}>
+                    <p className="text-gray-300 mb-1">
+                      Your Wallet Balance: $
+                      {user ? user.walletBalance.toFixed(2) : "0.00"}
+                    </p>
+                    {user && user.walletBalance < card.price && (
+                      <p className="text-sm text-red-300">
+                        You need $
+                        {(card.price - user.walletBalance).toFixed(2)} more to
+                        complete this purchase.
+                      </p>
+                    )}
+                  </div>
+
+                  {user && user.walletBalance < card.price ? (
+                    <>
+                      <Link
+                        href="/deposit"
+                        className="w-full inline-flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-lg transition-colors">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-5 w-5"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor">
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 8v4m0 0v4m0-4h4m-4 0H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z"
+                          />
+                        </svg>
+                        Deposit Funds Now
+                      </Link>
+                      <button
+                        onClick={cancelPayment}
+                        className="w-full mt-3 text-sm text-gray-300 hover:text-white underline">
+                        Cancel Payment
+                      </button>
+                    </>
+                  ) : paymentSuccess ? (
+                    <div className="p-4 bg-green-900/30 rounded-lg border border-green-700/50">
+                      <p className="text-green-300 font-bold">
+                        Payment successful! Your card will be delivered shortly.
+                      </p>
+                      <Link
+                        href="/my-purchases"
+                        className="mt-4 block text-center bg-blue-600 hover:bg-blue-700 py-2 rounded-lg font-bold">
+                        View Your Purchased Cards
+                      </Link>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={handleWalletPayment}
+                      disabled={isProcessing}
+                      className={`w-full py-3 px-4 rounded-lg font-bold flex items-center justify-center gap-2 transition-colors ${
+                        isProcessing
+                          ? "bg-gray-600 cursor-not-allowed"
+                          : "bg-red-600 hover:bg-red-700"
+                      }`}>
+                      {isProcessing ? (
+                        <>
+                          <svg
+                            className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24">
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"></circle>
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                          </svg>
+                          Processing...
+                        </>
+                      ) : (
+                        <>
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-5 w-5"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M5 13l4 4L19 7"
+                            />
+                          </svg>
+                          Confirm Payment (${card.price.toFixed(2)})
+                        </>
+                      )}
+                    </button>
+                  )}
+                </>
+              ) : (
+                <div className="p-4 bg-gray-800 rounded-lg border border-gray-700">
+                  <p className="text-gray-300 mb-4">
+                    You need to be logged in to complete this purchase.
+                  </p>
                   <Link
-                    href="/deposit"
-                    className="w-full inline-flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-lg transition-colors">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 8v4m0 0v4m0-4h4m-4 0H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
-                    Deposit Funds Now
+                    href="/login"
+                    className="w-full block text-center bg-red-600 hover:bg-red-700 py-3 rounded-lg font-bold">
+                    Login Now
                   </Link>
                   <button
                     onClick={cancelPayment}
                     className="w-full mt-3 text-sm text-gray-300 hover:text-white underline">
                     Cancel Payment
                   </button>
-                </>
-              ) : paymentSuccess ? (
-                <div className="p-4 bg-green-900/30 rounded-lg border border-green-700/50">
-                  <p className="text-green-300 font-bold">
-                    Payment successful! Your card will be delivered shortly.
-                  </p>
-                  <Link
-                    href="/my-purchases"
-                    className="mt-4 block text-center bg-blue-600 hover:bg-blue-700 py-2 rounded-lg font-bold">
-                    View Your Purchased Cards
-                  </Link>
                 </div>
-              ) : (
-                <button
-                  onClick={handleWalletPayment}
-                  disabled={isProcessing}
-                  className={`w-full py-3 px-4 rounded-lg font-bold flex items-center justify-center gap-2 transition-colors ${
-                    isProcessing
-                      ? "bg-gray-600 cursor-not-allowed"
-                      : "bg-red-600 hover:bg-red-700"
-                  }`}>
-                  {isProcessing ? (
-                    <>
-                      <svg
-                        className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24">
-                        <circle
-                          className="opacity-25"
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="4"></circle>
-                        <path
-                          className="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                      </svg>
-                      Processing...
-                    </>
-                  ) : (
-                    <>
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M5 13l4 4L19 7"
-                        />
-                      </svg>
-                      Confirm Payment (${card.price.toFixed(2)})
-                    </>
-                  )}
-                </button>
               )}
             </div>
           )}

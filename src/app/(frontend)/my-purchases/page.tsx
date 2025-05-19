@@ -32,16 +32,31 @@ export default function MyPurchasesPage() {
     {}
   );
   const [copiedCardId, setCopiedCardId] = useState<number | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // First get current user
+        setLoading(true);
+        
+        // First check if user is logged in
         const userRes = await fetch("/api/users/me");
-        if (!userRes.ok) throw new Error("Failed to fetch user data");
+        if (!userRes.ok) {
+          setIsLoggedIn(false);
+          setLoading(false);
+          return;
+        }
 
         const userData = await userRes.json();
+        if (!userData?.user?.id) {
+          setIsLoggedIn(false);
+          setLoading(false);
+          return;
+        }
 
+        setIsLoggedIn(true);
+        
         // Then fetch user's purchased cards
         const cardsRes = await fetch(
           `/api/purchased-cards?where[purchasedBy][equals]=${userData.user.id}`
@@ -53,13 +68,13 @@ export default function MyPurchasesPage() {
         setCards(cardsData.docs || []);
 
         // Initialize revealed state for all cards as false
-        const initialRevealedState = cardsData.docs.reduce(
+        const initialRevealedState = cardsData.docs?.reduce(
           (acc: Record<number, boolean>, card: PurchasedCard) => {
             acc[card.id] = false;
             return acc;
           },
           {}
-        );
+        ) || {};
         setRevealedCards(initialRevealedState);
       } catch (err) {
         if (err instanceof Error) {
@@ -76,6 +91,10 @@ export default function MyPurchasesPage() {
   }, []);
 
   const toggleRevealCard = (cardId: number) => {
+    if (!isLoggedIn) {
+      setShowLoginPrompt(true);
+      return;
+    }
     setRevealedCards((prev) => ({
       ...prev,
       [cardId]: !prev[cardId],
@@ -83,6 +102,10 @@ export default function MyPurchasesPage() {
   };
 
   const copyToClipboard = (text: string, cardId: number) => {
+    if (!isLoggedIn) {
+      setShowLoginPrompt(true);
+      return;
+    }
     navigator.clipboard.writeText(text);
     setCopiedCardId(cardId);
     setTimeout(() => setCopiedCardId(null), 2000);
@@ -90,7 +113,6 @@ export default function MyPurchasesPage() {
 
   const formatCardNumber = (number: string, reveal: boolean) => {
     if (reveal) {
-      // Format with spaces for better readability
       return number.replace(/(\d{4})(?=\d)/g, "$1 ");
     }
     return `•••• •••• •••• ${number.slice(-4)}`;
@@ -169,12 +191,68 @@ export default function MyPurchasesPage() {
             <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-amber-600">
               My Purchased Cards
             </h1>
-            <p className="text-gray-400 mt-2">
-              {cards.length} card{cards.length !== 1 ? "s" : ""} purchased
-            </p>
+            {isLoggedIn && (
+              <p className="text-gray-400 mt-2">
+                {cards.length} card{cards.length !== 1 ? "s" : ""} purchased
+              </p>
+            )}
           </div>
 
-          {cards.length === 0 ? (
+          {/* Login Prompt Modal */}
+          {showLoginPrompt && (
+            <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
+              <div className="bg-gray-800 rounded-lg p-6 max-w-md w-full border border-red-800/50">
+                <h3 className="text-xl font-bold text-red-400 mb-4">
+                  Login Required
+                </h3>
+                <p className="text-gray-300 mb-6">
+                  You need to be logged in to view your purchased cards.
+                </p>
+                <div className="flex flex-col space-y-3">
+                  <Link
+                    href="/login"
+                    className="w-full py-3 px-4 rounded-lg font-bold bg-red-600 hover:bg-red-700 text-center transition-colors">
+                    Login
+                  </Link>
+    
+                  <button
+                    onClick={() => setShowLoginPrompt(false)}
+                    className="w-full py-3 px-4 rounded-lg font-bold text-gray-300 hover:text-white underline">
+                    Continue Browsing
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {!isLoggedIn ? (
+            <div className="bg-gray-800/50 rounded-xl p-8 text-center border border-gray-700">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-12 w-12 mx-auto text-gray-500"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                />
+              </svg>
+              <h3 className="mt-4 text-xl font-medium text-gray-300">
+                Please log in to view your purchases
+              </h3>
+              <p className="mt-2 text-gray-400">
+                Your purchased cards will be available after logging in
+              </p>
+              <button
+                onClick={() => setShowLoginPrompt(true)}
+                className="mt-6 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700">
+                Login Now
+              </button>
+            </div>
+          ) : cards.length === 0 ? (
             <div className="bg-gray-800/50 rounded-xl p-8 text-center border border-gray-700">
               <svg
                 xmlns="http://www.w3.org/2000/svg"

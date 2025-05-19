@@ -32,13 +32,6 @@ export default function Home() {
       </nav>
 
       {/* Hero Section */}
-      {/* <section className="py-20 text-center">
-        <h1 className="text-4xl font-bold mb-4">Buy Premium <span className="text-yellow-400">Stolen Cards</span></h1>
-        <p className="text-xl mb-8">High Balance | Fresh Dumps | 100% Valid</p>
-        <button className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-3 px-6 rounded-lg">
-          Browse Cards
-        </button>
-      </section> */}
       <HeroSection/>
 
 

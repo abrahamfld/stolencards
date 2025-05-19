@@ -41,8 +41,29 @@ export default function CardCheckoutPage({ params }: { params: Promise<PageParam
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [error, setError] = useState('');
-  const [showPaymentDetails, setShowPaymentDetails] = useState(false); // NEW
+  const [showPaymentDetails, setShowPaymentDetails] = useState(false);
 
+  const storageKey = `pendingPayment_${id}`;
+
+  // Restore persisted state
+  useEffect(() => {
+    const stored = localStorage.getItem(storageKey);
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      const now = Date.now();
+      const elapsed = Math.floor((now - parsed.timestamp) / 1000);
+      const remainingTime = parsed.timer - elapsed;
+
+      if (remainingTime > 0) {
+        setShowPaymentDetails(true);
+        setTimer(remainingTime);
+      } else {
+        localStorage.removeItem(storageKey);
+      }
+    }
+  }, [id]);
+
+  // Fetch card and user
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -62,13 +83,22 @@ export default function CardCheckoutPage({ params }: { params: Promise<PageParam
     fetchData();
   }, [id, router]);
 
+  // Countdown
   useEffect(() => {
-    const countdown = setInterval(() => {
-      setTimer((prev) => (prev > 0 ? prev - 1 : 0));
-    }, 1000);
-    return () => clearInterval(countdown);
-  }, []);
+    if (!showPaymentDetails) return;
 
+    const interval = setInterval(() => {
+      setTimer((prev) => {
+        const next = prev > 0 ? prev - 1 : 0;
+        if (next === 0) localStorage.removeItem(storageKey);
+        return next;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [showPaymentDetails]);
+
+  // Format time
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -116,6 +146,13 @@ export default function CardCheckoutPage({ params }: { params: Promise<PageParam
 
     if (user.walletBalance < card.price) {
       setError('Insufficient funds in your wallet');
+
+      // Persist state
+      localStorage.setItem(
+        storageKey,
+        JSON.stringify({ timer, timestamp: Date.now() })
+      );
+
       return;
     }
 
@@ -136,12 +173,19 @@ export default function CardCheckoutPage({ params }: { params: Promise<PageParam
 
       setUser({ ...user, walletBalance: updatedBalance });
       setPaymentSuccess(true);
+      localStorage.removeItem(storageKey);
     } catch (err) {
       console.error('Payment error:', err);
       setError('Payment failed. Please try again.');
     } finally {
       setIsProcessing(false);
     }
+  };
+
+  const cancelPayment = () => {
+    setShowPaymentDetails(false);
+    setTimer(900);
+    localStorage.removeItem(storageKey);
   };
 
   if (!card || !user) {
@@ -161,12 +205,14 @@ export default function CardCheckoutPage({ params }: { params: Promise<PageParam
             <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-amber-600">
               Secure Checkout
             </h1>
-            <p className="text-red-400 mt-1 flex items-center gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.414-1.415L11 9.586V6z" />
-              </svg>
-              Time remaining: {formatTime(timer)}
-            </p>
+            {showPaymentDetails && (
+              <p className="text-red-400 mt-1 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.414-1.415L11 9.586V6z" />
+                </svg>
+                Time remaining: {formatTime(timer)}
+              </p>
+            )}
           </div>
 
           <div className="bg-gray-800/50 rounded-xl p-6 mb-6 border border-red-800/30">
@@ -185,7 +231,13 @@ export default function CardCheckoutPage({ params }: { params: Promise<PageParam
           {/* Initial Pay button */}
           {!showPaymentDetails ? (
             <button
-              onClick={() => setShowPaymentDetails(true)}
+              onClick={() => {
+                setShowPaymentDetails(true);
+                localStorage.setItem(
+                  storageKey,
+                  JSON.stringify({ timer: 900, timestamp: Date.now() })
+                );
+              }}
               className="w-full py-3 px-4 rounded-lg font-bold bg-red-600 hover:bg-red-700 transition-colors flex items-center justify-center gap-2"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -208,15 +260,23 @@ export default function CardCheckoutPage({ params }: { params: Promise<PageParam
               </div>
 
               {user.walletBalance < card.price ? (
-                <Link
-                  href="/deposit"
-                  className="w-full inline-flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-lg transition-colors"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 0v4m0-4h4m-4 0H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  Deposit Funds Now
-                </Link>
+                <>
+                  <Link
+                    href="/deposit"
+                    className="w-full inline-flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-lg transition-colors"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 0v4m0-4h4m-4 0H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Deposit Funds Now
+                  </Link>
+                  <button
+                    onClick={cancelPayment}
+                    className="w-full mt-3 text-sm text-gray-300 hover:text-white underline"
+                  >
+                    Cancel Payment
+                  </button>
+                </>
               ) : paymentSuccess ? (
                 <div className="p-4 bg-green-900/30 rounded-lg border border-green-700/50">
                   <p className="text-green-300 font-bold">Payment successful! Your card will be delivered shortly.</p>

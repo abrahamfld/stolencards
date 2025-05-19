@@ -41,9 +41,6 @@ export default function Home() {
       </section> */}
       <HeroSection/>
 
-      {/* HowItWorksSection */}
-      <HowItWorksSection/>
-
 
       {/* CardGridSection */}
       <CardGridSection  />

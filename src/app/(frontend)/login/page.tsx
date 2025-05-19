@@ -254,15 +254,7 @@ export default function LoginPage() {
             </button>
           </div>
 
-          {isLogin && (
-            <div className="mt-4 text-center">
-              <Link
-                href="/forgot-password"
-                className="text-sm text-amber-400 hover:text-amber-300 hover:underline transition-colors duration-200">
-                Forgot password?
-              </Link>
-            </div>
-          )}
+          
 
           <div className="mt-8 border-t border-gray-700 pt-6">
             <p className="text-xs text-gray-400 text-center">

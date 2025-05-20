@@ -13,7 +13,8 @@
     "lint": "cross-env NODE_OPTIONS=--no-deprecation next lint",
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "seed": "ts-node --esm seed.ts"
   },
   "dependencies": {
     "@payloadcms/db-sqlite": "3.33.0",
@@ -44,7 +45,7 @@
     "eslint-plugin-prettier": "^5.4.0",
     "prettier": "^3.5.3",
     "ts-node": "^10.9.2",
-    "typescript": "5.7.3"
+    "typescript": "^5.7.3"
   },
   "engines": {
     "node": "^18.20.2 || >=20.9.0",

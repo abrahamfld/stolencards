@@ -6,12 +6,13 @@ import Link from "next/link";
 
 type Transaction = {
   id: string;
-  type: "deposit" | "withdrawal" | "purchase";
+  type: "deposit" | "withdrawal" | "purchase" | "welcome";
   amount: number;
   currency: string;
-  status: "pending" | "completed" | "failed";
+  status: "pending" | "completed" | "failed" | "account_created";
   timestamp: string;
   read: boolean;
+  message?: string;
 };
 
 export const Topbar = () => {
@@ -20,35 +21,7 @@ export const Topbar = () => {
   const [walletBalance, setWalletBalance] = useState(0);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
-  const [transactions, setTransactions] = useState<Transaction[]>([
-    {
-      id: "1",
-      type: "deposit",
-      amount: 1500,
-      currency: "BTC",
-      status: "completed",
-      timestamp: "2024-05-18T10:30:00Z",
-      read: false,
-    },
-    {
-      id: "2",
-      type: "purchase",
-      amount: 200,
-      currency: "USD",
-      status: "pending",
-      timestamp: "2024-05-18T09:45:00Z",
-      read: false,
-    },
-    {
-      id: "3",
-      type: "withdrawal",
-      amount: 0.5,
-      currency: "BTC",
-      status: "completed",
-      timestamp: "2024-05-17T15:20:00Z",
-      read: true,
-    },
-  ]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState("");
 
@@ -67,19 +40,51 @@ export const Topbar = () => {
           if (data.user) {
             setIsLoggedIn(true);
             
-            // Add welcome notification if balance is 0
+            // Initialize transactions based on wallet balance
             if (data.user.walletBalance === 0) {
-              setTransactions(prev => [
+              // Show welcome notification for zero balance
+              setTransactions([
                 {
                   id: `welcome-${Date.now()}`,
-                  type: "deposit",
+                  type: "welcome",
                   amount: 0,
                   currency: "USD",
-                  status: "completed",
+                  status: "account_created",
                   timestamp: new Date().toISOString(),
                   read: false,
+                  message: `Welcome ${data.user.username}! Deposit funds to get started.`
+                }
+              ]);
+            } else {
+              // Show regular transactions for non-zero balance
+              setTransactions([
+                {
+                  id: "1",
+                  type: "deposit",
+                  amount: 1500,
+                  currency: "BTC",
+                  status: "completed",
+                  timestamp: "2024-05-18T10:30:00Z",
+                  read: false,
                 },
-                ...prev
+                {
+                  id: "2",
+                  type: "purchase",
+                  amount: 200,
+                  currency: "USD",
+                  status: "pending",
+                  timestamp: "2024-05-18T09:45:00Z",
+                  read: false,
+                },
+                {
+                  id: "3",
+                  type: "withdrawal",
+                  amount: 0.5,
+                  currency: "BTC",
+                  status: "completed",
+                  timestamp: "2024-05-17T15:20:00Z",
+                  read: true,
+                }
               ]);
             }
           }
@@ -133,6 +138,8 @@ export const Topbar = () => {
         return "⬆️";
       case "purchase":
         return "💳";
+      case "welcome":
+        return "👋";
       default:
         return "ℹ️";
     }
@@ -146,6 +153,8 @@ export const Topbar = () => {
         return "text-amber-400";
       case "failed":
         return "text-red-400";
+      case "account_created":
+        return "text-blue-400";
       default:
         return "text-gray-400";
     }
@@ -293,7 +302,7 @@ export const Topbar = () => {
                 {showNotifications && (
                   <div className="absolute right-0 mt-2 w-80 bg-gray-800 rounded-lg shadow-xl border border-gray-700 z-50">
                     <div className="p-3 text-sm font-bold border-b border-gray-700 bg-gray-900/50">
-                      Recent Transaction
+                      {walletBalance === 0 ? "Welcome!" : "Recent Transactions"}
                       <span className="text-gray-400 font-normal ml-2">
                         ({transactions.length} records)
                       </span>
@@ -310,25 +319,20 @@ export const Topbar = () => {
                           <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-3">
                               <span className="text-xl">
-                                {transaction.id.startsWith('welcome-') ? '👋' : getTransactionIcon(transaction.type)}
+                                {getTransactionIcon(transaction.type)}
                               </span>
                               <div>
                                 <div className="capitalize font-medium">
-                                  {transaction.id.startsWith('welcome-') 
+                                  {transaction.type === "welcome" 
                                     ? `Welcome ${username}!` 
                                     : transaction.type}
                                 </div>
-                                <div
-                                  className={`text-xs ${getStatusColor(
-                                    transaction.status
-                                  )}`}>
-                                  {transaction.id.startsWith('welcome-') 
-                                    ? 'Account created' 
-                                    : transaction.status}
+                                <div className={`text-xs ${getStatusColor(transaction.status)}`}>
+                                  {transaction.status.split('_').join(' ')}
                                 </div>
                               </div>
                             </div>
-                            {!transaction.id.startsWith('welcome-') && (
+                            {transaction.type !== "welcome" && (
                               <div className="text-right">
                                 <div className="font-mono">
                                   {transaction.amount.toLocaleString()}{" "}
@@ -340,9 +344,9 @@ export const Topbar = () => {
                               </div>
                             )}
                           </div>
-                          {transaction.id.startsWith('welcome-') && (
+                          {transaction.message && (
                             <div className="mt-2 text-xs text-gray-400">
-                              Your wallet balance is currently $0. Deposit funds to get started!
+                              {transaction.message}
                             </div>
                           )}
                         </div>
@@ -354,7 +358,7 @@ export const Topbar = () => {
             </>
           )}
 
-          {/* Auth Button - now visible on all screens */}
+          {/* Auth Button - visible on all screens */}
           <button
             onClick={isLoggedIn ? handleLogout : handleLogin}
             className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-xs font-semibold">

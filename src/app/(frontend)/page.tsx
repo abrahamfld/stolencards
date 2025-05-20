@@ -5,6 +5,8 @@ import { Topbar } from "./components/Topbar";
 import { Footer } from "./components/Footer";
 import { CardGridSection } from "./components/sections/CardGridSection";
 import { HeroSection } from "./components/sections/HeroSection";
+import Link from "next/link";
+
 
 export default function Home() {
   return (
@@ -16,19 +18,19 @@ export default function Home() {
 
       {/* Navbar */}
       <nav className="bg-black p-4 flex justify-between items-center">
-        <a href="/">
+        <Link href="/">
           <h1 className="text-xl font-bold cursor-pointer">StolenCard.cc</h1>
-        </a>
+        </Link>
         <div className="flex space-x-4">
-          <a href="#cards" className="hover:text-yellow-400">
+          <Link href="#cards" className="hover:text-yellow-400">
             Shop
-          </a>
-          <a href="#reviews" className="hover:text-yellow-400">
+          </Link>
+          <Link href="#reviews" className="hover:text-yellow-400">
             Reviews
-          </a>
-          <a href="#faq" className="hover:text-yellow-400">
+          </Link>
+          <Link href="#faq" className="hover:text-yellow-400">
             FAQ
-          </a>
+          </Link>
         </div>
       </nav>
 

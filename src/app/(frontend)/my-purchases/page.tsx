@@ -273,11 +273,7 @@ export default function MyPurchasesPage() {
               <p className="mt-2 text-gray-400">
                 Your purchased cards will appear here once you make a purchase
               </p>
-              <Link
-                href="/cards"
-                className="mt-6 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700">
-                Browse Cards
-              </Link>
+              
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

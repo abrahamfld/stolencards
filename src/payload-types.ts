@@ -126,7 +126,13 @@ export interface User {
   username?: string | null;
   role: 'user' | 'admin';
   walletBalance?: number | null;
+  /**
+   * User's Bitcoin wallet address
+   */
   btcWalletAddress?: string | null;
+  /**
+   * User's Monero wallet address
+   */
   xmrWalletAddress?: string | null;
   updatedAt: string;
   createdAt: string;

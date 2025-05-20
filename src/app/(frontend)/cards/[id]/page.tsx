@@ -377,9 +377,8 @@ export default function CardCheckoutPage() {
                     </p>
                     {user && user.walletBalance < card.price && (
                       <p className="text-sm text-red-300">
-                        You need $
-                        {(card.price - user.walletBalance).toFixed(2)} more to
-                        complete this purchase.
+                        You need ${(card.price - user.walletBalance).toFixed(2)}{" "}
+                        more to complete this purchase.
                       </p>
                     )}
                   </div>

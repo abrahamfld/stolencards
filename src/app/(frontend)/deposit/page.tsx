@@ -6,8 +6,6 @@ import { Topbar } from "../components/Topbar";
 import { Footer } from "../components/Footer";
 import Link from "next/link";
 
-
-
 type User = {
   id: number;
   username: string;
@@ -165,7 +163,7 @@ export default function WalletPage() {
                     className="w-full py-3 px-4 rounded-lg font-bold bg-red-600 hover:bg-red-700 text-center transition-colors">
                     Login
                   </Link>
-                  
+
                   <button
                     onClick={() => setShowLoginPrompt(false)}
                     className="w-full py-3 px-4 rounded-lg font-bold text-gray-300 hover:text-white underline">
@@ -220,7 +218,9 @@ export default function WalletPage() {
                     <button
                       onClick={() => setActiveTab("deposit")}
                       className={`py-2 px-4 rounded-md transition-colors ${
-                        activeTab === "deposit" ? "bg-red-600" : "hover:bg-gray-700"
+                        activeTab === "deposit"
+                          ? "bg-red-600"
+                          : "hover:bg-gray-700"
                       }`}>
                       Deposit
                     </button>
@@ -314,7 +314,9 @@ export default function WalletPage() {
                         className="absolute right-2 top-2 bg-gray-700 hover:bg-gray-600 p-1 rounded"
                         title="Copy to clipboard">
                         {copied ? (
-                          <span className="text-xs text-green-400">Copied!</span>
+                          <span className="text-xs text-green-400">
+                            Copied!
+                          </span>
                         ) : (
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -501,7 +503,8 @@ export default function WalletPage() {
                       <li className="flex items-start gap-2">
                         <span className="text-red-400">•</span>
                         <span>
-                          Network fees will be deducted from the withdrawal amount
+                          Network fees will be deducted from the withdrawal
+                          amount
                         </span>
                       </li>
                       <li className="flex items-start gap-2">

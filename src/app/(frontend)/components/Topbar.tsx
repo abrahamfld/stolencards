@@ -39,7 +39,7 @@ export const Topbar = () => {
 
           if (data.user) {
             setIsLoggedIn(true);
-            
+
             // Initialize transactions based on wallet balance
             if (data.user.walletBalance === 0) {
               // Show welcome notification for zero balance
@@ -52,8 +52,8 @@ export const Topbar = () => {
                   status: "account_created",
                   timestamp: new Date().toISOString(),
                   read: false,
-                  message: `Welcome ${data.user.username}! Deposit funds to get started.`
-                }
+                  message: `Welcome ${data.user.username}! Deposit funds to get started.`,
+                },
               ]);
             } else {
               // Show regular transactions for non-zero balance
@@ -84,7 +84,7 @@ export const Topbar = () => {
                   status: "completed",
                   timestamp: "2024-05-17T15:20:00Z",
                   read: true,
-                }
+                },
               ]);
             }
           }
@@ -323,12 +323,13 @@ export const Topbar = () => {
                               </span>
                               <div>
                                 <div className="capitalize font-medium">
-                                  {transaction.type === "welcome" 
-                                    ? `Welcome ${username}!` 
+                                  {transaction.type === "welcome"
+                                    ? `Welcome ${username}!`
                                     : transaction.type}
                                 </div>
-                                <div className={`text-xs ${getStatusColor(transaction.status)}`}>
-                                  {transaction.status.split('_').join(' ')}
+                                <div
+                                  className={`text-xs ${getStatusColor(transaction.status)}`}>
+                                  {transaction.status.split("_").join(" ")}
                                 </div>
                               </div>
                             </div>

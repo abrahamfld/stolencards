@@ -5,21 +5,22 @@ import { Topbar } from "./components/Topbar";
 import { Footer } from "./components/Footer";
 import { CardGridSection } from "./components/sections/CardGridSection";
 import { HeroSection } from "./components/sections/HeroSection";
-import { HowItWorksSection } from "./components/sections/HowItWorksSection";
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       <Topbar />
       <Head>
-        <title>Elite Cards | Buy CC, Dumps, Fullz </title>
+        <title>StolenCards | Buy CC, Dumps, Fullz </title>
       </Head>
 
       {/* Navbar */}
       <nav className="bg-black p-4 flex justify-between items-center">
-        <h1 className="text-xl font-bold">EliteCards.cc</h1>
+        <a href="/">
+          <h1 className="text-xl font-bold cursor-pointer">StolenCard.cc</h1>
+        </a>
         <div className="flex space-x-4">
-          <a href="#shop" className="hover:text-yellow-400">
+          <a href="#cards" className="hover:text-yellow-400">
             Shop
           </a>
           <a href="#reviews" className="hover:text-yellow-400">

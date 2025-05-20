@@ -39,7 +39,7 @@ export default function MyPurchasesPage() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        
+
         // First check if user is logged in
         const userRes = await fetch("/api/users/me");
         if (!userRes.ok) {
@@ -56,7 +56,7 @@ export default function MyPurchasesPage() {
         }
 
         setIsLoggedIn(true);
-        
+
         // Then fetch user's purchased cards
         const cardsRes = await fetch(
           `/api/purchased-cards?where[purchasedBy][equals]=${userData.user.id}`
@@ -68,13 +68,14 @@ export default function MyPurchasesPage() {
         setCards(cardsData.docs || []);
 
         // Initialize revealed state for all cards as false
-        const initialRevealedState = cardsData.docs?.reduce(
-          (acc: Record<number, boolean>, card: PurchasedCard) => {
-            acc[card.id] = false;
-            return acc;
-          },
-          {}
-        ) || {};
+        const initialRevealedState =
+          cardsData.docs?.reduce(
+            (acc: Record<number, boolean>, card: PurchasedCard) => {
+              acc[card.id] = false;
+              return acc;
+            },
+            {}
+          ) || {};
         setRevealedCards(initialRevealedState);
       } catch (err) {
         if (err instanceof Error) {
@@ -214,7 +215,7 @@ export default function MyPurchasesPage() {
                     className="w-full py-3 px-4 rounded-lg font-bold bg-red-600 hover:bg-red-700 text-center transition-colors">
                     Login
                   </Link>
-    
+
                   <button
                     onClick={() => setShowLoginPrompt(false)}
                     className="w-full py-3 px-4 rounded-lg font-bold text-gray-300 hover:text-white underline">
@@ -273,7 +274,6 @@ export default function MyPurchasesPage() {
               <p className="mt-2 text-gray-400">
                 Your purchased cards will appear here once you make a purchase
               </p>
-              
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

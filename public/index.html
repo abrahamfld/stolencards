@@ -1,651 +1,824 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Credit Card Generator</title>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        h1 {
-            color: #2c3e50;
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        .container {
-            background-color: white;
-            padding: 25px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-        .config-section {
-            margin-bottom: 30px;
-            padding: 20px;
-            background-color: #f9f9f9;
-            border-radius: 5px;
-        }
-        .config-section h2 {
-            margin-top: 0;
-            color: #3498db;
-            font-size: 1.3rem;
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 600;
-        }
-        select, input {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 16px;
-        }
-        .checkbox-group {
-            display: flex;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-        .checkbox-group input {
-            width: auto;
-            margin-right: 10px;
-        }
-        .range-group {
-            display: flex;
-            gap: 10px;
-            margin-top: 5px;
-        }
-        .range-group input {
-            width: 48%;
-        }
-        button {
-            background-color: #3498db;
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            font-size: 16px;
-            border-radius: 4px;
-            cursor: pointer;
-            display: block;
-            width: 100%;
-            margin: 20px 0;
-            transition: background-color 0.3s;
-        }
-        button:hover {
-            background-color: #2980b9;
-        }
-        .result-section {
-            margin-top: 30px;
-        }
-        textarea {
-            width: 100%;
-            height: 300px;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-family: monospace;
-            font-size: 14px;
-        }
-        .card-count {
-            font-weight: bold;
-            color: #e74c3c;
-        }
-        .card-preview {
-            background: linear-gradient(135deg, #2c3e50, #4ca1af);
-            color: white;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            font-family: monospace;
-            position: relative;
-            max-width: 400px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-        .card-preview .type {
-            text-align: right;
-            font-weight: bold;
-            font-size: 1.2rem;
-        }
-        .card-preview .number {
-            font-size: 1.5rem;
-            letter-spacing: 2px;
-            margin: 20px 0;
-            word-spacing: 8px;
-        }
-        .card-preview .details {
-            display: flex;
-            justify-content: space-between;
-        }
-        .card-preview .expiry::before {
-            content: "EXP: ";
-            font-size: 0.8rem;
-            opacity: 0.8;
-        }
-        .card-preview .cvv::before {
-            content: "CVV: ";
-            font-size: 0.8rem;
-            opacity: 0.8;
-        }
-        .card-preview .owner {
-            margin-top: 15px;
-            text-transform: uppercase;
-            font-size: 1.1rem;
-        }
-        .card-preview .balance {
-            position: absolute;
-            right: 20px;
-            bottom: 20px;
-            font-size: 1.2rem;
-        }
-        .hidden {
-            display: none;
-        }
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+      h1 {
+        color: #2c3e50;
+        text-align: center;
+        margin-bottom: 30px;
+      }
+      .container {
+        background-color: white;
+        padding: 25px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      .config-section {
+        margin-bottom: 30px;
+        padding: 20px;
+        background-color: #f9f9f9;
+        border-radius: 5px;
+      }
+      .config-section h2 {
+        margin-top: 0;
+        color: #3498db;
+        font-size: 1.3rem;
+      }
+      .form-group {
+        margin-bottom: 15px;
+      }
+      label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 600;
+      }
+      select,
+      input {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 16px;
+      }
+      .checkbox-group {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+      .checkbox-group input {
+        width: auto;
+        margin-right: 10px;
+      }
+      .range-group {
+        display: flex;
+        gap: 10px;
+        margin-top: 5px;
+      }
+      .range-group input {
+        width: 48%;
+      }
+      button {
+        background-color: #3498db;
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        font-size: 16px;
+        border-radius: 4px;
+        cursor: pointer;
+        display: block;
+        width: 100%;
+        margin: 20px 0;
+        transition: background-color 0.3s;
+      }
+      button:hover {
+        background-color: #2980b9;
+      }
+      .result-section {
+        margin-top: 30px;
+      }
+      textarea {
+        width: 100%;
+        height: 300px;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-family: monospace;
+        font-size: 14px;
+      }
+      .card-count {
+        font-weight: bold;
+        color: #e74c3c;
+      }
+      .card-preview {
+        background: linear-gradient(135deg, #2c3e50, #4ca1af);
+        color: white;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        font-family: monospace;
+        position: relative;
+        max-width: 400px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+      .card-preview .type {
+        text-align: right;
+        font-weight: bold;
+        font-size: 1.2rem;
+      }
+      .card-preview .number {
+        font-size: 1.5rem;
+        letter-spacing: 2px;
+        margin: 20px 0;
+        word-spacing: 8px;
+      }
+      .card-preview .details {
+        display: flex;
+        justify-content: space-between;
+      }
+      .card-preview .expiry::before {
+        content: "EXP: ";
+        font-size: 0.8rem;
+        opacity: 0.8;
+      }
+      .card-preview .cvv::before {
+        content: "CVV: ";
+        font-size: 0.8rem;
+        opacity: 0.8;
+      }
+      .card-preview .owner {
+        margin-top: 15px;
+        text-transform: uppercase;
+        font-size: 1.1rem;
+      }
+      .card-preview .balance {
+        position: absolute;
+        right: 20px;
+        bottom: 20px;
+        font-size: 1.2rem;
+      }
+      .hidden {
+        display: none;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <h1>Credit Card Generator</h1>
-        
-        <div class="config-section">
-            <h2>Generation Settings</h2>
-            
-            <div class="form-group">
-                <label for="cardCount">Number of Cards to Generate</label>
-                <input type="number" id="cardCount" min="1" max="1000" value="10">
-            </div>
-            
-            <div class="form-group">
-                <label for="cardTypes">Card Types</label>
-                <select id="cardTypes" multiple size="4">
-                    <option value="VISA" selected>VISA</option>
-                    <option value="MasterCard" selected>MasterCard</option>
-                    <option value="AMEX" selected>AMEX</option>
-                    <option value="Discover" selected>Discover</option>
-                </select>
-                <small>Hold Ctrl/Cmd to select multiple</small>
-            </div>
+      <h1>Credit Card Generator</h1>
+
+      <div class="config-section">
+        <h2>Generation Settings</h2>
+
+        <div class="form-group">
+          <label for="cardCount">Number of Cards to Generate</label>
+          <input type="number" id="cardCount" min="1" max="1000" value="10" />
         </div>
-        
-        <div class="config-section">
-            <h2>Field Configuration</h2>
-            
-            <div class="form-group">
-                <label>Card Number</label>
-                <div class="checkbox-group">
-                    <input type="checkbox" id="randomNumber" checked>
-                    <label for="randomNumber">Generate random valid numbers</label>
-                </div>
-            </div>
-            
-            <div class="form-group">
-                <label>Expiration Date</label>
-                <div class="checkbox-group">
-                    <input type="checkbox" id="futureExpiry" checked>
-                    <label for="futureExpiry">Only future dates (MM/YY)</label>
-                </div>
-                <div class="checkbox-group">
-                    <input type="checkbox" id="randomExpiry" checked>
-                    <label for="randomExpiry">Random within 5 years</label>
-                </div>
-            </div>
-            
-            <div class="form-group">
-                <label>CVV</label>
-                <div class="checkbox-group">
-                    <input type="checkbox" id="randomCVV" checked>
-                    <label for="randomCVV">Random 3-digit number</label>
-                </div>
-            </div>
-            
-            <div class="form-group">
-                <label>Balance</label>
-                <div class="checkbox-group">
-                    <input type="checkbox" id="randomBalance" checked>
-                    <label for="randomBalance">Random amount</label>
-                </div>
-                <div id="balanceRangeGroup" class="range-group">
-                    <input type="number" id="balanceMin" placeholder="Min" value="0" min="0">
-                    <input type="number" id="balanceMax" placeholder="Max" value="10000" min="0">
-                </div>
-            </div>
-            
-            <div class="form-group">
-                <label>Price</label>
-                <div class="checkbox-group">
-                    <input type="checkbox" id="randomPrice" checked>
-                    <label for="randomPrice">Random amount</label>
-                </div>
-                <div class="checkbox-group">
-                    <input type="radio" id="pricePercentage" name="priceType" value="percentage" checked>
-                    <label for="pricePercentage">Percentage of balance</label>
-                </div>
-                <div id="percentageRangeGroup" class="range-group">
-                    <input type="number" id="priceMinPct" placeholder="Min %" value="1" min="0" max="100" step="0.1">
-                    <input type="number" id="priceMaxPct" placeholder="Max %" value="10" min="0" max="100" step="0.1">
-                </div>
-                <div class="checkbox-group">
-                    <input type="radio" id="priceFixed" name="priceType" value="fixed">
-                    <label for="priceFixed">Fixed amount range</label>
-                </div>
-                <div id="fixedRangeGroup" class="range-group hidden">
-                    <input type="number" id="priceMinFixed" placeholder="Min $" value="0" min="0">
-                    <input type="number" id="priceMaxFixed" placeholder="Max $" value="1000" min="0">
-                </div>
-            </div>
-            
-            <div class="form-group">
-                <label>Country</label>
-                <div class="checkbox-group">
-                    <input type="checkbox" id="randomCountry" checked>
-                    <label for="randomCountry">Random from popular countries</label>
-                </div>
-            </div>
-            
-            <div class="form-group">
-                <label>Cardholder Name</label>
-                <div class="checkbox-group">
-                    <input type="checkbox" id="randomName" checked>
-                    <label for="randomName">Generate random names</label>
-                </div>
-            </div>
+
+        <div class="form-group">
+          <label for="cardTypes">Card Types</label>
+          <select id="cardTypes" multiple size="4">
+            <option value="VISA" selected>VISA</option>
+            <option value="MasterCard" selected>MasterCard</option>
+            <option value="AMEX" selected>AMEX</option>
+            <option value="Discover" selected>Discover</option>
+          </select>
+          <small>Hold Ctrl/Cmd to select multiple</small>
         </div>
-        
-        <button id="generateBtn">Generate <span class="card-count">10</span> Credit Cards</button>
-        
-        <div class="card-preview" id="cardPreview">
-            <div class="type">VISA</div>
-            <div class="number">4532 •••• •••• 5678</div>
-            <div class="details">
-                <div class="expiry">05/25</div>
-                <div class="cvv">•••</div>
-            </div>
-            <div class="owner">JOHN SMITH</div>
-            <div class="balance">$1,500.00</div>
+      </div>
+
+      <div class="config-section">
+        <h2>Field Configuration</h2>
+
+        <div class="form-group">
+          <label>Card Number</label>
+          <div class="checkbox-group">
+            <input type="checkbox" id="randomNumber" checked />
+            <label for="randomNumber">Generate random valid numbers</label>
+          </div>
         </div>
-        
-        <div class="result-section">
-            <h2>Generated Cards (JSON Array)</h2>
-            <textarea id="result" readonly></textarea>
-            <button id="copyBtn">Copy to Clipboard</button>
+
+        <div class="form-group">
+          <label>Expiration Date</label>
+          <div class="checkbox-group">
+            <input type="checkbox" id="futureExpiry" checked />
+            <label for="futureExpiry">Only future dates (MM/YY)</label>
+          </div>
+          <div class="checkbox-group">
+            <input type="checkbox" id="randomExpiry" checked />
+            <label for="randomExpiry">Random within 5 years</label>
+          </div>
         </div>
+
+        <div class="form-group">
+          <label>CVV</label>
+          <div class="checkbox-group">
+            <input type="checkbox" id="randomCVV" checked />
+            <label for="randomCVV">Random 3-digit number</label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Balance</label>
+          <div class="checkbox-group">
+            <input type="checkbox" id="randomBalance" checked />
+            <label for="randomBalance">Random amount</label>
+          </div>
+          <div id="balanceRangeGroup" class="range-group">
+            <input
+              type="number"
+              id="balanceMin"
+              placeholder="Min"
+              value="0"
+              min="0" />
+            <input
+              type="number"
+              id="balanceMax"
+              placeholder="Max"
+              value="10000"
+              min="0" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Price</label>
+          <div class="checkbox-group">
+            <input type="checkbox" id="randomPrice" checked />
+            <label for="randomPrice">Random amount</label>
+          </div>
+          <div class="checkbox-group">
+            <input
+              type="radio"
+              id="pricePercentage"
+              name="priceType"
+              value="percentage"
+              checked />
+            <label for="pricePercentage">Percentage of balance</label>
+          </div>
+          <div id="percentageRangeGroup" class="range-group">
+            <input
+              type="number"
+              id="priceMinPct"
+              placeholder="Min %"
+              value="1"
+              min="0"
+              max="100"
+              step="0.1" />
+            <input
+              type="number"
+              id="priceMaxPct"
+              placeholder="Max %"
+              value="10"
+              min="0"
+              max="100"
+              step="0.1" />
+          </div>
+          <div class="checkbox-group">
+            <input
+              type="radio"
+              id="priceFixed"
+              name="priceType"
+              value="fixed" />
+            <label for="priceFixed">Fixed amount range</label>
+          </div>
+          <div id="fixedRangeGroup" class="range-group hidden">
+            <input
+              type="number"
+              id="priceMinFixed"
+              placeholder="Min $"
+              value="0"
+              min="0" />
+            <input
+              type="number"
+              id="priceMaxFixed"
+              placeholder="Max $"
+              value="1000"
+              min="0" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Country</label>
+          <div class="checkbox-group">
+            <input type="checkbox" id="randomCountry" checked />
+            <label for="randomCountry">Random from popular countries</label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Cardholder Name</label>
+          <div class="checkbox-group">
+            <input type="checkbox" id="randomName" checked />
+            <label for="randomName">Generate random names</label>
+          </div>
+        </div>
+      </div>
+
+      <button id="generateBtn">
+        Generate <span class="card-count">10</span> Credit Cards
+      </button>
+
+      <div class="card-preview" id="cardPreview">
+        <div class="type">VISA</div>
+        <div class="number">4532 •••• •••• 5678</div>
+        <div class="details">
+          <div class="expiry">05/25</div>
+          <div class="cvv">•••</div>
+        </div>
+        <div class="owner">JOHN SMITH</div>
+        <div class="balance">$1,500.00</div>
+      </div>
+
+      <div class="result-section">
+        <h2>Generated Cards (JSON Array)</h2>
+        <textarea id="result" readonly></textarea>
+        <button id="copyBtn">Copy to Clipboard</button>
+      </div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Update card count display
-            const cardCountInput = document.getElementById('cardCount');
-            const cardCountDisplay = document.querySelector('.card-count');
-            
-            cardCountInput.addEventListener('input', function() {
-                cardCountDisplay.textContent = this.value;
-            });
-            
-            // Toggle price range inputs based on selection
-            document.getElementById('pricePercentage').addEventListener('change', function() {
-                document.getElementById('percentageRangeGroup').classList.remove('hidden');
-                document.getElementById('fixedRangeGroup').classList.add('hidden');
-            });
-            
-            document.getElementById('priceFixed').addEventListener('change', function() {
-                document.getElementById('percentageRangeGroup').classList.add('hidden');
-                document.getElementById('fixedRangeGroup').classList.remove('hidden');
-            });
-            
-            // Validate balance ranges
-            document.getElementById('balanceMin').addEventListener('change', function() {
-                const min = parseFloat(this.value);
-                const maxInput = document.getElementById('balanceMax');
-                const max = parseFloat(maxInput.value);
-                
-                if (min > max) {
-                    maxInput.value = min;
-                }
-            });
-            
-            document.getElementById('balanceMax').addEventListener('change', function() {
-                const max = parseFloat(this.value);
-                const minInput = document.getElementById('balanceMin');
-                const min = parseFloat(minInput.value);
-                
-                if (max < min) {
-                    minInput.value = max;
-                }
-            });
-            
-            // Validate price ranges
-            document.getElementById('priceMinPct').addEventListener('change', function() {
-                const min = parseFloat(this.value);
-                const maxInput = document.getElementById('priceMaxPct');
-                const max = parseFloat(maxInput.value);
-                
-                if (min > max) {
-                    maxInput.value = min;
-                }
-            });
-            
-            document.getElementById('priceMaxPct').addEventListener('change', function() {
-                const max = parseFloat(this.value);
-                const minInput = document.getElementById('priceMinPct');
-                const min = parseFloat(minInput.value);
-                
-                if (max < min) {
-                    minInput.value = max;
-                }
-            });
-            
-            document.getElementById('priceMinFixed').addEventListener('change', function() {
-                const min = parseFloat(this.value);
-                const maxInput = document.getElementById('priceMaxFixed');
-                const max = parseFloat(maxInput.value);
-                
-                if (min > max) {
-                    maxInput.value = min;
-                }
-            });
-            
-            document.getElementById('priceMaxFixed').addEventListener('change', function() {
-                const max = parseFloat(this.value);
-                const minInput = document.getElementById('priceMinFixed');
-                const min = parseFloat(minInput.value);
-                
-                if (max < min) {
-                    minInput.value = max;
-                }
-            });
-            
-            // Sample data for generation
-            const countries = [
-                "United States", "Canada", "United Kingdom", "Australia", 
-                "Germany", "France", "Japan", "Spain", "Italy", "Brazil", 
-                "Mexico", "Netherlands", "Switzerland", "Singapore", "India"
-            ];
-            
-            const firstNames = [
-                "James", "Mary", "John", "Patricia", "Robert", "Jennifer", 
-                "Michael", "Linda", "William", "Elizabeth", "David", "Barbara",
-                "Richard", "Susan", "Joseph", "Jessica", "Thomas", "Sarah",
-                "Charles", "Karen", "Christopher", "Nancy", "Daniel", "Lisa"
-            ];
-            
-            const lastNames = [
-                "Smith", "Johnson", "Williams", "Brown", "Jones", "Miller", 
-                "Davis", "Garcia", "Rodriguez", "Wilson", "Martinez", "Anderson",
-                "Taylor", "Thomas", "Hernandez", "Moore", "Martin", "Jackson",
-                "Thompson", "White", "Lopez", "Lee", "Gonzalez", "Harris"
-            ];
-            
-            // Generate button click handler
-            document.getElementById('generateBtn').addEventListener('click', function() {
-                const count = parseInt(document.getElementById('cardCount').value);
-                const selectedTypes = Array.from(document.getElementById('cardTypes').selectedOptions)
-                    .map(option => option.value);
-                
-                // Get balance range
-                const balanceMin = parseFloat(document.getElementById('balanceMin').value);
-                const balanceMax = parseFloat(document.getElementById('balanceMax').value);
-                
-                // Get price configuration
-                const priceType = document.querySelector('input[name="priceType"]:checked').value;
-                let priceMin, priceMax;
-                
-                if (priceType === 'percentage') {
-                    priceMin = parseFloat(document.getElementById('priceMinPct').value) / 100;
-                    priceMax = parseFloat(document.getElementById('priceMaxPct').value) / 100;
-                } else {
-                    priceMin = parseFloat(document.getElementById('priceMinFixed').value);
-                    priceMax = parseFloat(document.getElementById('priceMaxFixed').value);
-                }
-                
-                const cards = generateCreditCards(
-                    count,
-                    selectedTypes,
-                    document.getElementById('randomNumber').checked,
-                    document.getElementById('futureExpiry').checked,
-                    document.getElementById('randomExpiry').checked,
-                    document.getElementById('randomCVV').checked,
-                    document.getElementById('randomBalance').checked ? { min: balanceMin, max: balanceMax } : null,
-                    document.getElementById('randomPrice').checked ? { type: priceType, min: priceMin, max: priceMax } : null,
-                    document.getElementById('randomCountry').checked,
-                    document.getElementById('randomName').checked
-                );
-                
-                displayResults(cards);
-                updateCardPreview(cards[0]);
-            });
-            
-            // Copy button click handler
-            document.getElementById('copyBtn').addEventListener('click', function() {
-                const resultTextarea = document.getElementById('result');
-                resultTextarea.select();
-                document.execCommand('copy');
-                
-                // Visual feedback
-                const originalText = this.textContent;
-                this.textContent = "Copied!";
-                setTimeout(() => {
-                    this.textContent = originalText;
-                }, 2000);
-            });
-            
-            // Generate credit cards based on configuration
-            function generateCreditCards(
-                count, 
-                types, 
-                randomNumber, 
-                futureExpiry, 
-                randomExpiry, 
-                randomCVV, 
-                balanceRange, 
-                priceConfig, 
-                randomCountry, 
-                randomName
-            ) {
-                const cards = [];
-                const now = new Date();
-                const currentMonth = now.getMonth() + 1;
-                const currentYear = now.getFullYear();
-                
-                for (let i = 0; i < count; i++) {
-                    const type = types[Math.floor(Math.random() * types.length)];
-                    
-                    // Generate card number
-                    let number;
-                    if (randomNumber) {
-                        number = generateCardNumber(type);
-                    } else {
-                        // Placeholder number that passes basic validation
-                        number = type === "AMEX" ? "378282246310005" : "4111111111111111";
-                    }
-                    
-                    // Generate expiration date
-                    let expiry;
-                    if (futureExpiry) {
-                        if (randomExpiry) {
-                            // Random date within 5 years
-                            const monthsInFuture = Math.floor(Math.random() * 60) + 1;
-                            const expiryDate = new Date();
-                            expiryDate.setMonth(expiryDate.getMonth() + monthsInFuture);
-                            
-                            const month = String(expiryDate.getMonth() + 1).padStart(2, '0');
-                            const year = String(expiryDate.getFullYear()).slice(-2);
-                            expiry = `${month}/${year}`;
-                        } else {
-                            // Fixed date 2 years in future
-                            const expiryDate = new Date();
-                            expiryDate.setFullYear(expiryDate.getFullYear() + 2);
-                            
-                            const month = String(expiryDate.getMonth() + 1).padStart(2, '0');
-                            const year = String(expiryDate.getFullYear()).slice(-2);
-                            expiry = `${month}/${year}`;
-                        }
-                    } else {
-                        // Could be expired (not recommended)
-                        const month = String(Math.floor(Math.random() * 12) + 1).padStart(2, '0');
-                        const year = String(currentYear - Math.floor(Math.random() * 5)).slice(-2);
-                        expiry = `${month}/${year}`;
-                    }
-                    
-                    // Generate CVV
-                    const cvv = randomCVV ? Math.floor(100 + Math.random() * 900) : 123;
-                    
-                    // Generate balance
-                    const balance = balanceRange ? 
-                        parseFloat((balanceRange.min + Math.random() * (balanceRange.max - balanceRange.min)).toFixed(2)) :
-                        1000.00;
-                    
-                    // Generate price
-                    let price;
-                    if (priceConfig) {
-                        if (priceConfig.type === 'percentage') {
-                            const percentage = priceConfig.min + Math.random() * (priceConfig.max - priceConfig.min);
-                            price = parseFloat((balance * percentage).toFixed(2));
-                        } else {
-                            price = parseFloat((priceConfig.min + Math.random() * (priceConfig.max - priceConfig.min)).toFixed(2));
-                        }
-                    } else {
-                        price = parseFloat((balance * 0.05).toFixed(2)); // Fixed 5%
-                    }
-                    
-                    // Generate country
-                    const country = randomCountry ? 
-                        countries[Math.floor(Math.random() * countries.length)] : 
-                        "United States";
-                    
-                    // Generate owner name
-                    let ownerName;
-                    if (randomName) {
-                        const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
-                        const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
-                        ownerName = `${firstName} ${lastName}`;
-                    } else {
-                        ownerName = "John Doe";
-                    }
-                    
-                    cards.push({
-                        type,
-                        number,
-                        expiry,
-                        cvv,
-                        balance: parseFloat(balance),
-                        price: parseFloat(price),
-                        country,
-                        ownerName
-                    });
-                }
-                
-                return cards;
-            }
-            
-            // Generate valid card number based on type
-            function generateCardNumber(type) {
-                let prefix, length;
-                
-                switch(type) {
-                    case "VISA":
-                        prefix = "4";
-                        length = 16;
-                        break;
-                    case "MasterCard":
-                        prefix = ["51", "52", "53", "54", "55"][Math.floor(Math.random() * 5)];
-                        length = 16;
-                        break;
-                    case "AMEX":
-                        prefix = ["34", "37"][Math.floor(Math.random() * 2)];
-                        length = 15;
-                        break;
-                    case "Discover":
-                        prefix = "6011";
-                        length = 16;
-                        break;
-                    default:
-                        prefix = "4";
-                        length = 16;
-                }
-                
-                // Generate the remaining digits
-                let number = prefix;
-                while (number.length < length - 1) {
-                    number += Math.floor(Math.random() * 10);
-                }
-                
-                // Calculate Luhn check digit
-                number += calculateLuhnCheckDigit(number);
-                
-                return number;
-            }
-            
-            // Calculate Luhn check digit for card number validation
-            function calculateLuhnCheckDigit(partialNumber) {
-                let sum = 0;
-                let alternate = false;
-                
-                for (let i = partialNumber.length - 1; i >= 0; i--) {
-                    let digit = parseInt(partialNumber.charAt(i));
-                    
-                    if (alternate) {
-                        digit *= 2;
-                        if (digit > 9) {
-                            digit -= 9;
-                        }
-                    }
-                    
-                    sum += digit;
-                    alternate = !alternate;
-                }
-                
-                return ((10 - (sum % 10)) % 10).toString();
-            }
-            
-            // Display results in textarea
-            function displayResults(cards) {
-                const resultTextarea = document.getElementById('result');
-                resultTextarea.value = JSON.stringify(cards, null, 2);
-                updateCardPreview(cards[0]);
-            }
-            
-            // Update card preview
-            function updateCardPreview(card) {
-                const preview = document.getElementById('cardPreview');
-                
-                // Mask sensitive information for display
-                const maskedNumber = card.number.replace(/(\d{4})(\d{4})(\d{4})(\d{4})/, '$1 •••• •••• $4');
-                const maskedCVV = '•••';
-                
-                preview.querySelector('.type').textContent = card.type;
-                preview.querySelector('.number').textContent = 
-                    card.type === "AMEX" ? 
-                    card.number.replace(/(\d{4})(\d{6})(\d{5})/, '$1 •••••• $3') :
-                    maskedNumber;
-                preview.querySelector('.expiry').textContent = card.expiry;
-                preview.querySelector('.cvv').textContent = maskedCVV;
-                preview.querySelector('.owner').textContent = card.ownerName.toUpperCase();
-                preview.querySelector('.balance').textContent = `$${card.balance.toFixed(2)}`;
-            }
-            
-            // Initial setup
-            
-            // Generate initial preview
-            updateCardPreview({
-                type: "VISA",
-                number: "4532678912345678",
-                expiry: "05/25",
-                cvv: 123,
-                balance: 1500,
-                price: 50,
-                country: "United States",
-                ownerName: "John Smith"
-            });
+      document.addEventListener("DOMContentLoaded", function () {
+        // Update card count display
+        const cardCountInput = document.getElementById("cardCount");
+        const cardCountDisplay = document.querySelector(".card-count");
+
+        cardCountInput.addEventListener("input", function () {
+          cardCountDisplay.textContent = this.value;
         });
+
+        // Toggle price range inputs based on selection
+        document
+          .getElementById("pricePercentage")
+          .addEventListener("change", function () {
+            document
+              .getElementById("percentageRangeGroup")
+              .classList.remove("hidden");
+            document.getElementById("fixedRangeGroup").classList.add("hidden");
+          });
+
+        document
+          .getElementById("priceFixed")
+          .addEventListener("change", function () {
+            document
+              .getElementById("percentageRangeGroup")
+              .classList.add("hidden");
+            document
+              .getElementById("fixedRangeGroup")
+              .classList.remove("hidden");
+          });
+
+        // Validate balance ranges
+        document
+          .getElementById("balanceMin")
+          .addEventListener("change", function () {
+            const min = parseFloat(this.value);
+            const maxInput = document.getElementById("balanceMax");
+            const max = parseFloat(maxInput.value);
+
+            if (min > max) {
+              maxInput.value = min;
+            }
+          });
+
+        document
+          .getElementById("balanceMax")
+          .addEventListener("change", function () {
+            const max = parseFloat(this.value);
+            const minInput = document.getElementById("balanceMin");
+            const min = parseFloat(minInput.value);
+
+            if (max < min) {
+              minInput.value = max;
+            }
+          });
+
+        // Validate price ranges
+        document
+          .getElementById("priceMinPct")
+          .addEventListener("change", function () {
+            const min = parseFloat(this.value);
+            const maxInput = document.getElementById("priceMaxPct");
+            const max = parseFloat(maxInput.value);
+
+            if (min > max) {
+              maxInput.value = min;
+            }
+          });
+
+        document
+          .getElementById("priceMaxPct")
+          .addEventListener("change", function () {
+            const max = parseFloat(this.value);
+            const minInput = document.getElementById("priceMinPct");
+            const min = parseFloat(minInput.value);
+
+            if (max < min) {
+              minInput.value = max;
+            }
+          });
+
+        document
+          .getElementById("priceMinFixed")
+          .addEventListener("change", function () {
+            const min = parseFloat(this.value);
+            const maxInput = document.getElementById("priceMaxFixed");
+            const max = parseFloat(maxInput.value);
+
+            if (min > max) {
+              maxInput.value = min;
+            }
+          });
+
+        document
+          .getElementById("priceMaxFixed")
+          .addEventListener("change", function () {
+            const max = parseFloat(this.value);
+            const minInput = document.getElementById("priceMinFixed");
+            const min = parseFloat(minInput.value);
+
+            if (max < min) {
+              minInput.value = max;
+            }
+          });
+
+        // Sample data for generation
+        const countries = [
+          "United States",
+          "Canada",
+          "United Kingdom",
+          "Australia",
+          "Germany",
+          "France",
+          "Japan",
+          "Spain",
+          "Italy",
+          "Brazil",
+          "Mexico",
+          "Netherlands",
+          "Switzerland",
+          "Singapore",
+          "India",
+        ];
+
+        const firstNames = [
+          "James",
+          "Mary",
+          "John",
+          "Patricia",
+          "Robert",
+          "Jennifer",
+          "Michael",
+          "Linda",
+          "William",
+          "Elizabeth",
+          "David",
+          "Barbara",
+          "Richard",
+          "Susan",
+          "Joseph",
+          "Jessica",
+          "Thomas",
+          "Sarah",
+          "Charles",
+          "Karen",
+          "Christopher",
+          "Nancy",
+          "Daniel",
+          "Lisa",
+        ];
+
+        const lastNames = [
+          "Smith",
+          "Johnson",
+          "Williams",
+          "Brown",
+          "Jones",
+          "Miller",
+          "Davis",
+          "Garcia",
+          "Rodriguez",
+          "Wilson",
+          "Martinez",
+          "Anderson",
+          "Taylor",
+          "Thomas",
+          "Hernandez",
+          "Moore",
+          "Martin",
+          "Jackson",
+          "Thompson",
+          "White",
+          "Lopez",
+          "Lee",
+          "Gonzalez",
+          "Harris",
+        ];
+
+        // Generate button click handler
+        document
+          .getElementById("generateBtn")
+          .addEventListener("click", function () {
+            const count = parseInt(document.getElementById("cardCount").value);
+            const selectedTypes = Array.from(
+              document.getElementById("cardTypes").selectedOptions
+            ).map((option) => option.value);
+
+            // Get balance range
+            const balanceMin = parseFloat(
+              document.getElementById("balanceMin").value
+            );
+            const balanceMax = parseFloat(
+              document.getElementById("balanceMax").value
+            );
+
+            // Get price configuration
+            const priceType = document.querySelector(
+              'input[name="priceType"]:checked'
+            ).value;
+            let priceMin, priceMax;
+
+            if (priceType === "percentage") {
+              priceMin =
+                parseFloat(document.getElementById("priceMinPct").value) / 100;
+              priceMax =
+                parseFloat(document.getElementById("priceMaxPct").value) / 100;
+            } else {
+              priceMin = parseFloat(
+                document.getElementById("priceMinFixed").value
+              );
+              priceMax = parseFloat(
+                document.getElementById("priceMaxFixed").value
+              );
+            }
+
+            const cards = generateCreditCards(
+              count,
+              selectedTypes,
+              document.getElementById("randomNumber").checked,
+              document.getElementById("futureExpiry").checked,
+              document.getElementById("randomExpiry").checked,
+              document.getElementById("randomCVV").checked,
+              document.getElementById("randomBalance").checked
+                ? { min: balanceMin, max: balanceMax }
+                : null,
+              document.getElementById("randomPrice").checked
+                ? { type: priceType, min: priceMin, max: priceMax }
+                : null,
+              document.getElementById("randomCountry").checked,
+              document.getElementById("randomName").checked
+            );
+
+            displayResults(cards);
+            updateCardPreview(cards[0]);
+          });
+
+        // Copy button click handler
+        document
+          .getElementById("copyBtn")
+          .addEventListener("click", function () {
+            const resultTextarea = document.getElementById("result");
+            resultTextarea.select();
+            document.execCommand("copy");
+
+            // Visual feedback
+            const originalText = this.textContent;
+            this.textContent = "Copied!";
+            setTimeout(() => {
+              this.textContent = originalText;
+            }, 2000);
+          });
+
+        // Generate credit cards based on configuration
+        function generateCreditCards(
+          count,
+          types,
+          randomNumber,
+          futureExpiry,
+          randomExpiry,
+          randomCVV,
+          balanceRange,
+          priceConfig,
+          randomCountry,
+          randomName
+        ) {
+          const cards = [];
+          const now = new Date();
+          const currentMonth = now.getMonth() + 1;
+          const currentYear = now.getFullYear();
+
+          for (let i = 0; i < count; i++) {
+            const type = types[Math.floor(Math.random() * types.length)];
+
+            // Generate card number
+            let number;
+            if (randomNumber) {
+              number = generateCardNumber(type);
+            } else {
+              // Placeholder number that passes basic validation
+              number = type === "AMEX" ? "378282246310005" : "4111111111111111";
+            }
+
+            // Generate expiration date
+            let expiry;
+            if (futureExpiry) {
+              if (randomExpiry) {
+                // Random date within 5 years
+                const monthsInFuture = Math.floor(Math.random() * 60) + 1;
+                const expiryDate = new Date();
+                expiryDate.setMonth(expiryDate.getMonth() + monthsInFuture);
+
+                const month = String(expiryDate.getMonth() + 1).padStart(
+                  2,
+                  "0"
+                );
+                const year = String(expiryDate.getFullYear()).slice(-2);
+                expiry = `${month}/${year}`;
+              } else {
+                // Fixed date 2 years in future
+                const expiryDate = new Date();
+                expiryDate.setFullYear(expiryDate.getFullYear() + 2);
+
+                const month = String(expiryDate.getMonth() + 1).padStart(
+                  2,
+                  "0"
+                );
+                const year = String(expiryDate.getFullYear()).slice(-2);
+                expiry = `${month}/${year}`;
+              }
+            } else {
+              // Could be expired (not recommended)
+              const month = String(Math.floor(Math.random() * 12) + 1).padStart(
+                2,
+                "0"
+              );
+              const year = String(
+                currentYear - Math.floor(Math.random() * 5)
+              ).slice(-2);
+              expiry = `${month}/${year}`;
+            }
+
+            // Generate CVV
+            const cvv = randomCVV ? Math.floor(100 + Math.random() * 900) : 123;
+
+            // Generate balance
+            const balance = balanceRange
+              ? parseFloat(
+                  (
+                    balanceRange.min +
+                    Math.random() * (balanceRange.max - balanceRange.min)
+                  ).toFixed(2)
+                )
+              : 1000.0;
+
+            // Generate price
+            let price;
+            if (priceConfig) {
+              if (priceConfig.type === "percentage") {
+                const percentage =
+                  priceConfig.min +
+                  Math.random() * (priceConfig.max - priceConfig.min);
+                price = parseFloat((balance * percentage).toFixed(2));
+              } else {
+                price = parseFloat(
+                  (
+                    priceConfig.min +
+                    Math.random() * (priceConfig.max - priceConfig.min)
+                  ).toFixed(2)
+                );
+              }
+            } else {
+              price = parseFloat((balance * 0.05).toFixed(2)); // Fixed 5%
+            }
+
+            // Generate country
+            const country = randomCountry
+              ? countries[Math.floor(Math.random() * countries.length)]
+              : "United States";
+
+            // Generate owner name
+            let ownerName;
+            if (randomName) {
+              const firstName =
+                firstNames[Math.floor(Math.random() * firstNames.length)];
+              const lastName =
+                lastNames[Math.floor(Math.random() * lastNames.length)];
+              ownerName = `${firstName} ${lastName}`;
+            } else {
+              ownerName = "John Doe";
+            }
+
+            cards.push({
+              type,
+              number,
+              expiry,
+              cvv,
+              balance: parseFloat(balance),
+              price: parseFloat(price),
+              country,
+              ownerName,
+            });
+          }
+
+          return cards;
+        }
+
+        // Generate valid card number based on type
+        function generateCardNumber(type) {
+          let prefix, length;
+
+          switch (type) {
+            case "VISA":
+              prefix = "4";
+              length = 16;
+              break;
+            case "MasterCard":
+              prefix = ["51", "52", "53", "54", "55"][
+                Math.floor(Math.random() * 5)
+              ];
+              length = 16;
+              break;
+            case "AMEX":
+              prefix = ["34", "37"][Math.floor(Math.random() * 2)];
+              length = 15;
+              break;
+            case "Discover":
+              prefix = "6011";
+              length = 16;
+              break;
+            default:
+              prefix = "4";
+              length = 16;
+          }
+
+          // Generate the remaining digits
+          let number = prefix;
+          while (number.length < length - 1) {
+            number += Math.floor(Math.random() * 10);
+          }
+
+          // Calculate Luhn check digit
+          number += calculateLuhnCheckDigit(number);
+
+          return number;
+        }
+
+        // Calculate Luhn check digit for card number validation
+        function calculateLuhnCheckDigit(partialNumber) {
+          let sum = 0;
+          let alternate = false;
+
+          for (let i = partialNumber.length - 1; i >= 0; i--) {
+            let digit = parseInt(partialNumber.charAt(i));
+
+            if (alternate) {
+              digit *= 2;
+              if (digit > 9) {
+                digit -= 9;
+              }
+            }
+
+            sum += digit;
+            alternate = !alternate;
+          }
+
+          return ((10 - (sum % 10)) % 10).toString();
+        }
+
+        // Display results in textarea
+        function displayResults(cards) {
+          const resultTextarea = document.getElementById("result");
+          resultTextarea.value = JSON.stringify(cards, null, 2);
+          updateCardPreview(cards[0]);
+        }
+
+        // Update card preview
+        function updateCardPreview(card) {
+          const preview = document.getElementById("cardPreview");
+
+          // Mask sensitive information for display
+          const maskedNumber = card.number.replace(
+            /(\d{4})(\d{4})(\d{4})(\d{4})/,
+            "$1 •••• •••• $4"
+          );
+          const maskedCVV = "•••";
+
+          preview.querySelector(".type").textContent = card.type;
+          preview.querySelector(".number").textContent =
+            card.type === "AMEX"
+              ? card.number.replace(/(\d{4})(\d{6})(\d{5})/, "$1 •••••• $3")
+              : maskedNumber;
+          preview.querySelector(".expiry").textContent = card.expiry;
+          preview.querySelector(".cvv").textContent = maskedCVV;
+          preview.querySelector(".owner").textContent =
+            card.ownerName.toUpperCase();
+          preview.querySelector(".balance").textContent =
+            `$${card.balance.toFixed(2)}`;
+        }
+
+        // Initial setup
+
+        // Generate initial preview
+        updateCardPreview({
+          type: "VISA",
+          number: "4532678912345678",
+          expiry: "05/25",
+          cvv: 123,
+          balance: 1500,
+          price: 50,
+          country: "United States",
+          ownerName: "John Smith",
+        });
+      });
     </script>
-</body>
+  </body>
 </html>

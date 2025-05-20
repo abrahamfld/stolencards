@@ -1,7 +1,7 @@
 // app/my-route/seedcards/route.ts
-import { NextRequest, NextResponse } from 'next/server';
-import { getPayload } from 'payload';
-import config from '@payload-config';
+import { NextRequest, NextResponse } from "next/server";
+import { getPayload } from "payload";
+import config from "@payload-config";
 
 export async function POST(req: NextRequest) {
   try {
@@ -9,7 +9,10 @@ export async function POST(req: NextRequest) {
     const cards = body;
 
     if (!Array.isArray(cards)) {
-      return NextResponse.json({ error: 'Input must be a valid JSON array' }, { status: 400 });
+      return NextResponse.json(
+        { error: "Input must be a valid JSON array" },
+        { status: 400 }
+      );
     }
 
     const payload = await getPayload({ config });
@@ -18,14 +21,14 @@ export async function POST(req: NextRequest) {
     for (const card of cards) {
       try {
         const created = await payload.create({
-          collection: 'credit-cards',
+          collection: "credit-cards",
           data: card,
         });
         creationResults.push({ success: true, data: created });
       } catch (err) {
         creationResults.push({
           success: false,
-          error: err instanceof Error ? err.message : 'Unknown error',
+          error: err instanceof Error ? err.message : "Unknown error",
           card,
         });
       }
@@ -34,7 +37,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ results: creationResults });
   } catch (err) {
     return NextResponse.json(
-      { error: err instanceof Error ? err.message : 'Unknown error' },
+      { error: err instanceof Error ? err.message : "Unknown error" },
       { status: 500 }
     );
   }

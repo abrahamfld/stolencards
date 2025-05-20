@@ -83,6 +83,7 @@ export const CardGridSection = () => {
 
   return (
     <section
+      id="cards"
       className="py-16 bg-gradient-to-b from-gray-900 to-black"
       ref={gridRef}>
       <div className="container mx-auto px-4">

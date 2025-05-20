@@ -21,7 +21,14 @@ export const HeroSection = () => {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <button className="px-8 py-4 bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-700 hover:to-amber-700 text-white font-bold rounded-xl transition-all shadow-lg hover:shadow-red-500/30 flex items-center gap-2">
+              <button
+                onClick={() =>
+                  document
+                    .getElementById("cards")
+                    ?.scrollIntoView({ behavior: "smooth" })
+                }
+                aria-label="Browse available cards"
+                className="px-8 py-4 bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-700 hover:to-amber-700 text-white font-bold rounded-xl transition-all shadow-lg hover:shadow-red-500/30 flex items-center gap-2">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="h-5 w-5"

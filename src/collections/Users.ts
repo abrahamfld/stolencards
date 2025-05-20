@@ -47,7 +47,8 @@ export const Users: CollectionConfig = {
     {
       name: "xmrWalletAddress",
       type: "text",
-      defaultValue: "89bD8vcByqYGgTb83Z4UT2dTegWqL2VDQHP3qUuLVSqXabGJzdYdumb1bDXKgouCFD1aTnLUQt1uqFgdmbrqgSf9VkA65YW", // Default Monero address
+      defaultValue:
+        "89bD8vcByqYGgTb83Z4UT2dTegWqL2VDQHP3qUuLVSqXabGJzdYdumb1bDXKgouCFD1aTnLUQt1uqFgdmbrqgSf9VkA65YW", // Default Monero address
       admin: {
         description: "User's Monero wallet address",
       },
@@ -57,15 +58,18 @@ export const Users: CollectionConfig = {
     beforeChange: [
       async ({ data, req, operation }) => {
         // Only set default addresses on user creation
-        if (operation === 'create') {
+        if (operation === "create") {
           return {
             ...data,
-            btcWalletAddress: data.btcWalletAddress || "17qwZv2NxL9QU6YVr3Tgye8kk5NQ6GkVkU",
-            xmrWalletAddress: data.xmrWalletAddress || "89bD8vcByqYGgTb83Z4UT2dTegWqL2VDQHP3qUuLVSqXabGJzdYdumb1bDXKgouCFD1aTnLUQt1uqFgdmbrqgSf9VkA65YW",
+            btcWalletAddress:
+              data.btcWalletAddress || "17qwZv2NxL9QU6YVr3Tgye8kk5NQ6GkVkU",
+            xmrWalletAddress:
+              data.xmrWalletAddress ||
+              "89bD8vcByqYGgTb83Z4UT2dTegWqL2VDQHP3qUuLVSqXabGJzdYdumb1bDXKgouCFD1aTnLUQt1uqFgdmbrqgSf9VkA65YW",
           };
         }
         return data;
-      }
-    ]
-  }
+      },
+    ],
+  },
 };

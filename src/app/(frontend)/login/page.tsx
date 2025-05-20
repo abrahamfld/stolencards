@@ -54,17 +54,14 @@ export default function LoginPage() {
         toast.success("Login successful!");
       } else {
         // Handle registration
-        const registerResponse = await fetch(
-          "/api/users",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(formData),
-            credentials: "include",
-          }
-        );
+        const registerResponse = await fetch("/api/users", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+          credentials: "include",
+        });
 
         const registerData = await registerResponse.json();
 
@@ -75,20 +72,17 @@ export default function LoginPage() {
         }
 
         // Auto-login after successful registration
-        const loginResponse = await fetch(
-          "/api/users/login",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              email: formData.email,
-              password: formData.password,
-            }),
-            credentials: "include",
-          }
-        );
+        const loginResponse = await fetch("/api/users/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: formData.email,
+            password: formData.password,
+          }),
+          credentials: "include",
+        });
 
         const loginData = await loginResponse.json();
 
@@ -253,8 +247,6 @@ export default function LoginPage() {
                 : "Already have an account? Sign In"}
             </button>
           </div>
-
-          
 
           <div className="mt-8 border-t border-gray-700 pt-6">
             <p className="text-xs text-gray-400 text-center">

@@ -50,6 +50,7 @@ export const Topbar = () => {
     },
   ]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [username, setUsername] = useState("");
 
   const unreadCount = transactions.filter((t) => !t.read).length;
   const router = useRouter();
@@ -61,10 +62,26 @@ export const Topbar = () => {
         if (response.ok) {
           const data = await response.json();
           setWalletBalance(data.user?.walletBalance || 0);
+          setUsername(data.user?.username || "");
 
-          if(data.user){
-
+          if (data.user) {
             setIsLoggedIn(true);
+            
+            // Add welcome notification if balance is 0
+            if (data.user.walletBalance === 0) {
+              setTransactions(prev => [
+                {
+                  id: `welcome-${Date.now()}`,
+                  type: "deposit",
+                  amount: 0,
+                  currency: "USD",
+                  status: "completed",
+                  timestamp: new Date().toISOString(),
+                  read: false,
+                },
+                ...prev
+              ]);
+            }
           }
         } else {
           setIsLoggedIn(false);
@@ -293,30 +310,41 @@ export const Topbar = () => {
                           <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-3">
                               <span className="text-xl">
-                                {getTransactionIcon(transaction.type)}
+                                {transaction.id.startsWith('welcome-') ? '👋' : getTransactionIcon(transaction.type)}
                               </span>
                               <div>
                                 <div className="capitalize font-medium">
-                                  {transaction.type}
+                                  {transaction.id.startsWith('welcome-') 
+                                    ? `Welcome ${username}!` 
+                                    : transaction.type}
                                 </div>
                                 <div
                                   className={`text-xs ${getStatusColor(
                                     transaction.status
                                   )}`}>
-                                  {transaction.status}
+                                  {transaction.id.startsWith('welcome-') 
+                                    ? 'Account created' 
+                                    : transaction.status}
                                 </div>
                               </div>
                             </div>
-                            <div className="text-right">
-                              <div className="font-mono">
-                                {transaction.amount.toLocaleString()}{" "}
-                                {transaction.currency}
+                            {!transaction.id.startsWith('welcome-') && (
+                              <div className="text-right">
+                                <div className="font-mono">
+                                  {transaction.amount.toLocaleString()}{" "}
+                                  {transaction.currency}
+                                </div>
+                                <div className="text-xs text-gray-400 mt-1">
+                                  {formatTimestamp(transaction.timestamp)}
+                                </div>
                               </div>
-                              <div className="text-xs text-gray-400 mt-1">
-                                {formatTimestamp(transaction.timestamp)}
-                              </div>
-                            </div>
+                            )}
                           </div>
+                          {transaction.id.startsWith('welcome-') && (
+                            <div className="mt-2 text-xs text-gray-400">
+                              Your wallet balance is currently $0. Deposit funds to get started!
+                            </div>
+                          )}
                         </div>
                       ))}
                     </div>
@@ -326,10 +354,10 @@ export const Topbar = () => {
             </>
           )}
 
-          {/* Desktop Auth Button (hidden on mobile since it's in dropdown) */}
+          {/* Auth Button - now visible on all screens */}
           <button
             onClick={isLoggedIn ? handleLogout : handleLogin}
-            className="hidden sm:block px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-xs font-semibold">
+            className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-xs font-semibold">
             {isLoggedIn ? "Logout" : "Login/Register"}
           </button>
         </div>

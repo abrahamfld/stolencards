@@ -343,7 +343,7 @@ export default function WalletPage() {
                     <ul className="space-y-2 text-sm text-gray-300">
                       <li className="flex items-start gap-2">
                         <span className="text-red-400">•</span>
-                        <span>Minimum deposit: $10.00 USD equivalent</span>
+                        <span>Minimum deposit: $20.00 USD equivalent</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-red-400">•</span>

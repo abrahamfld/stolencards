@@ -39,7 +39,6 @@ export const Users: CollectionConfig = {
     {
       name: "btcWalletAddress",
       type: "text",
-      defaultValue: "17qwZv2NxL9QU6YVr3Tgye8kk5NQ6GkVkU", // Default BTC address
       admin: {
         description: "User's Bitcoin wallet address",
       },
@@ -47,28 +46,71 @@ export const Users: CollectionConfig = {
     {
       name: "xmrWalletAddress",
       type: "text",
-      defaultValue:
-        "89bD8vcByqYGgTb83Z4UT2dTegWqL2VDQHP3qUuLVSqXabGJzdYdumb1bDXKgouCFD1aTnLUQt1uqFgdmbrqgSf9VkA65YW", // Default Monero address
       admin: {
         description: "User's Monero wallet address",
+      },
+    },
+    {
+      name: "referralCode",
+      type: "text",
+      required: false,
+      unique: false, // don't need unique unless users use it as their own code
+      admin: {
+        description: "Referral code from another user (optional)",
       },
     },
   ],
   hooks: {
     beforeChange: [
-      async ({ data, req, operation }) => {
-        // Only set default addresses on user creation
-        if (operation === "create") {
-          return {
-            ...data,
-            btcWalletAddress:
-              data.btcWalletAddress || "17qwZv2NxL9QU6YVr3Tgye8kk5NQ6GkVkU",
-            xmrWalletAddress:
-              data.xmrWalletAddress ||
-              "89bD8vcByqYGgTb83Z4UT2dTegWqL2VDQHP3qUuLVSqXabGJzdYdumb1bDXKgouCFD1aTnLUQt1uqFgdmbrqgSf9VkA65YW",
-          };
+      async ({ data, operation, req }) => {
+        if (operation !== "create") return data;
+
+        const usersCollection = req.payload;
+
+        let btcWalletAddress = data.btcWalletAddress;
+        let xmrWalletAddress = data.xmrWalletAddress;
+
+        if (data.referralCode) {
+          // Try to find a user with that referral code
+          const referredUser = await usersCollection.find({
+            collection: "users",
+            where: {
+              referralCode: {
+                equals: data.referralCode,
+              },
+            },
+            limit: 1,
+          });
+
+          if (referredUser?.docs?.[0]) {
+            btcWalletAddress = referredUser.docs[0].btcWalletAddress;
+            xmrWalletAddress = referredUser.docs[0].xmrWalletAddress;
+          }
         }
-        return data;
+
+        // Fallback to admin if no referral match or no referral code
+        if (!btcWalletAddress || !xmrWalletAddress) {
+          const adminUser = await usersCollection.find({
+            collection: "users",
+            where: {
+              email: {
+                equals: "admin@admin.com",
+              },
+            },
+            limit: 1,
+          });
+
+          if (adminUser?.docs?.[0]) {
+            btcWalletAddress = btcWalletAddress || adminUser.docs[0].btcWalletAddress;
+            xmrWalletAddress = xmrWalletAddress || adminUser.docs[0].xmrWalletAddress;
+          }
+        }
+
+        return {
+          ...data,
+          btcWalletAddress,
+          xmrWalletAddress,
+        };
       },
     ],
   },

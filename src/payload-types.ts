@@ -134,6 +134,10 @@ export interface User {
    * User's Monero wallet address
    */
   xmrWalletAddress?: string | null;
+  /**
+   * Referral code from another user (optional)
+   */
+  referralCode?: string | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -277,6 +281,7 @@ export interface UsersSelect<T extends boolean = true> {
   walletBalance?: T;
   btcWalletAddress?: T;
   xmrWalletAddress?: T;
+  referralCode?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;

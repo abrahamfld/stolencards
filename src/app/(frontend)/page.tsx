@@ -19,7 +19,7 @@ export default function Home() {
       {/* Navbar */}
       <nav className="bg-black p-4 flex justify-between items-center">
         <Link href="/">
-          <h1 className="text-xl font-bold cursor-pointer">StolenCard.cc</h1>
+          <h1 className="text-xl font-bold cursor-pointer">StolenCards.cc</h1>
         </Link>
         <div className="flex space-x-4">
           <Link href="#cards" className="hover:text-yellow-400">

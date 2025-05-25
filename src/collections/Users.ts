@@ -54,7 +54,7 @@ export const Users: CollectionConfig = {
       name: "referralCode",
       type: "text",
       required: false,
-      unique: false, // don't need unique unless users use it as their own code
+      unique: false,
       admin: {
         description: "Referral code from another user (optional)",
       },
@@ -70,8 +70,13 @@ export const Users: CollectionConfig = {
         let btcWalletAddress = data.btcWalletAddress;
         let xmrWalletAddress = data.xmrWalletAddress;
 
+        // Auto-generate username from email if not provided
+        if (!data.username && data.email) {
+          const emailUsername = data.email.split("@")[0];
+          data.username = emailUsername;
+        }
+
         if (data.referralCode) {
-          // Try to find a user with that referral code
           const referredUser = await usersCollection.find({
             collection: "users",
             where: {
@@ -88,7 +93,6 @@ export const Users: CollectionConfig = {
           }
         }
 
-        // Fallback to admin if no referral match or no referral code
         if (!btcWalletAddress || !xmrWalletAddress) {
           const adminUser = await usersCollection.find({
             collection: "users",
@@ -108,6 +112,7 @@ export const Users: CollectionConfig = {
 
         return {
           ...data,
+          username: data.username,
           btcWalletAddress,
           xmrWalletAddress,
         };

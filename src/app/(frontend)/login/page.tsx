@@ -11,7 +11,8 @@ export default function LoginPage() {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    username: "",
+    confirmPassword: "",
+    referralCode: "",
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -53,13 +54,22 @@ export default function LoginPage() {
 
         toast.success("Login successful!");
       } else {
+        // Validate password match for registration
+        if (formData.password !== formData.confirmPassword) {
+          throw new Error("Passwords do not match");
+        }
+
         // Handle registration
         const registerResponse = await fetch("/api/users", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(formData),
+          body: JSON.stringify({
+            email: formData.email,
+            password: formData.password,
+            referralCode: formData.referralCode || undefined,
+          }),
           credentials: "include",
         });
 
@@ -144,26 +154,6 @@ export default function LoginPage() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
-            {!isLogin && (
-              <div>
-                <label
-                  htmlFor="username"
-                  className="block text-sm font-medium text-gray-300 mb-2">
-                  Username
-                </label>
-                <input
-                  type="text"
-                  id="username"
-                  name="username"
-                  value={formData.username}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all duration-200 text-white placeholder-gray-400"
-                  placeholder="Enter your username"
-                  required
-                />
-              </div>
-            )}
-
             <div>
               <label
                 htmlFor="email"
@@ -200,6 +190,46 @@ export default function LoginPage() {
                 minLength={4}
               />
             </div>
+
+            {!isLogin && (
+              <>
+                <div>
+                  <label
+                    htmlFor="confirmPassword"
+                    className="block text-sm font-medium text-gray-300 mb-2">
+                    Confirm Password
+                  </label>
+                  <input
+                    type="password"
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all duration-200 text-white placeholder-gray-400"
+                    placeholder="••••••••"
+                    required
+                    minLength={4}
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="referralCode"
+                    className="block text-sm font-medium text-gray-300 mb-2">
+                    Referral Code <span className="text-gray-400">(optional)</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="referralCode"
+                    name="referralCode"
+                    value={formData.referralCode}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all duration-200 text-white placeholder-gray-400"
+                    placeholder="Enter referral code if you have one"
+                  />
+                </div>
+              </>
+            )}
 
             <button
               type="submit"

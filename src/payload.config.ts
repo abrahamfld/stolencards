@@ -11,6 +11,8 @@ import { Users } from "./collections/Users";
 import { Media } from "./collections/Media";
 import { CreditCards } from "./collections/CreditCards";
 import { PurchasedCards } from "./collections/PurchasedCards";
+import { PasswordProtectedPages } from "./collections/passwordProtectedPages";
+
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -22,7 +24,7 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Users, Media, CreditCards, PurchasedCards],
+  collections: [Users, Media, CreditCards, PurchasedCards,PasswordProtectedPages],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || "",
   typescript: {

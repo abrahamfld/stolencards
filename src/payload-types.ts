@@ -71,6 +71,7 @@ export interface Config {
     media: Media;
     'credit-cards': CreditCard;
     'purchased-cards': PurchasedCard;
+    passwordProtectedPages: PasswordProtectedPage;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -81,6 +82,7 @@ export interface Config {
     media: MediaSelect<false> | MediaSelect<true>;
     'credit-cards': CreditCardsSelect<false> | CreditCardsSelect<true>;
     'purchased-cards': PurchasedCardsSelect<false> | PurchasedCardsSelect<true>;
+    passwordProtectedPages: PasswordProtectedPagesSelect<false> | PasswordProtectedPagesSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -208,6 +210,20 @@ export interface PurchasedCard {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "passwordProtectedPages".
+ */
+export interface PasswordProtectedPage {
+  id: number;
+  page: string;
+  /**
+   * Password required to access this page
+   */
+  password: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
@@ -228,6 +244,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'purchased-cards';
         value: number | PurchasedCard;
+      } | null)
+    | ({
+        relationTo: 'passwordProtectedPages';
+        value: number | PasswordProtectedPage;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -340,6 +360,16 @@ export interface PurchasedCardsSelect<T extends boolean = true> {
   country?: T;
   ownerName?: T;
   purchasedBy?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "passwordProtectedPages_select".
+ */
+export interface PasswordProtectedPagesSelect<T extends boolean = true> {
+  page?: T;
+  password?: T;
   updatedAt?: T;
   createdAt?: T;
 }
